@@ -68,8 +68,11 @@ const POGRN = async (req, res) => {
                   }
                   else {      
                         POTracking.status = "in grn"
-                        POTracking.grn.push([...await data.MATERIALDOCUMENT.trim()])
+                        console.log(data.MATERIALDOCUMENT.trim());
+                        POTracking.grn.push(data.MATERIALDOCUMENT.trim())
+                        console.log(POTracking.grn);
                         POTracking.updatedAt = new Date()
+                        console.log(POTracking);
                         await POTracking.save()
                   }
 
@@ -106,6 +109,7 @@ const POGRN = async (req, res) => {
 const STOGRN = async (req, res) => {
       try {
             const dn = req.body[0].dn
+            const sto = req.body[0].sto
 
             const bodyDetails = {
                   "GRNDocument": dn,
@@ -124,11 +128,14 @@ const STOGRN = async (req, res) => {
                         uomIso: item.uomIso
                   }))
             }
-
+            
             const requestOptions = {
                   method: 'POST',
                   body: JSON.stringify(bodyDetails)
             }
+
+            console.log(requestOptions);
+
             const response = await fetch(`${process.env.SAP_QS}create_grn_from_sto.php`, requestOptions)
             const data = await response.json()
 
@@ -198,6 +205,7 @@ const STOGRN = async (req, res) => {
             }
       }
       catch (err) {
+            console.log(err);
             res.status(500).json({
                   status: false,
                   message: `${err.message === 'fetch failed' ? 'MIS Logged Off the PC where BAPI is Hosted' : err}`
