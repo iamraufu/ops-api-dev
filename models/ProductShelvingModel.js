@@ -32,7 +32,8 @@ const productShelvingSchema = new mongoose.Schema({
             default: null
       },
       userId: {
-            type: String,
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
             required: true
       },
       receivedBy: {
