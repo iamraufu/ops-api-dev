@@ -178,7 +178,7 @@ const dnUpdate = async (req, res) => {
                   )
             }
 
-            const response = await fetch(`${process.env.SAP_DEV}create_dn_update.php`, requestOptions)
+            const response = await fetch(`${process.env.SAP_QS}create_dn_update.php`, requestOptions)
             const data = await response.json()
             const SAPError = await data.RETURN.filter(data => data.TYPE === "E")
             const SAPSuccess = await data.RETURN.filter(data => data.TYPE === "S")
