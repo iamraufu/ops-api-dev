@@ -66,7 +66,7 @@ const POGRN = async (req, res) => {
                               }
                         })
                   }
-                  else {      
+                  else {
                         POTracking.status = "in grn"
                         console.log(data.MATERIALDOCUMENT.trim());
                         POTracking.grn.push(data.MATERIALDOCUMENT.trim())
@@ -128,7 +128,7 @@ const STOGRN = async (req, res) => {
                         uomIso: item.uomIso
                   }))
             }
-            
+
             const requestOptions = {
                   method: 'POST',
                   body: JSON.stringify(bodyDetails)
@@ -411,10 +411,54 @@ const search = async (req, res, status) => {
       }
 }
 
+const getAllPendingPOForGRN = async (req, res) => {
+      try {
+            const { filter } = req.body
+            
+            const pageSize = +req.body.query.pageSize || 10;
+            const currentPage = +req.body.query.currentPage || 1;
+            const sortBy = req.body.query.sortBy || '_id'; // _id or description or code or po or etc.
+            const sortOrder = req.body.query.sortOrder || 'desc'; // asc or desc
+
+            const totalItems = await GRNModel.find(filter).countDocuments();
+            const items = await GRNModel.find(filter)
+                  .skip((pageSize * (currentPage - 1)))
+                  .limit(pageSize)
+                  .sort({ [sortBy]: sortOrder })
+                  .exec()
+
+            const responseObject = {
+                  status: true,
+                  totalPages: Math.ceil(totalItems / pageSize),
+                  totalItems,
+                  items
+            };
+
+            if (items.length) {
+                  return res.status(200).json(responseObject);
+            }
+
+            else {
+                  return res.status(401).json({
+                        status: false,
+                        message: "Nothing found",
+                        items
+                  });
+            }
+      }
+      catch (err) {
+            res.status(500).json({
+                  status: false,
+                  message: `${err}`
+            })
+      }
+}
+
 module.exports = {
       pendingPOForGRN,
       updatePendingPOForGRN,
       getPendingPOForGRN,
+      getAllPendingPOForGRN,
       POGRN,
       STOGRN,
       TPN
