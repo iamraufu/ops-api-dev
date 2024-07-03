@@ -139,9 +139,11 @@ const search = async (req, res) => {
       const totalItems = await TempDataModel.find(filter).countDocuments();
       const items = await TempDataModel.find(filter)
             .skip((pageSize * (currentPage - 1)))
+            // .populate({
+            //       path: 'userId',
+            //       select: '-__v -password -createdAt -updatedAt' })
             .limit(pageSize)
             .sort({ [sortBy]: sortOrder })
-
 
       const responseObject = {
             status: true,
@@ -163,9 +165,110 @@ const search = async (req, res) => {
       }
 }
 
+
+const createOrUpdateTempData = async (req, res) => {
+
+      let filter = {}
+
+      const articleObj = req.body
+
+      if(articleObj.type === "grn data" ){
+
+            filter = {
+                        userId:articleObj.userId, 
+                        type:articleObj.type,
+                        "data.po": articleObj.po,
+                        // "data.material": articleObj.material
+                     }
+      }
+
+      // console.log(filter);
+
+
+      const mongoData = await TempDataModel.findOne(filter)
+
+      // console.log({mongoData});
+
+
+      try {
+            if(!mongoData){
+
+                  const formattedData = {
+                        userId:articleObj.userId, 
+                        type:articleObj.type, 
+                        data:[
+                              articleObj
+                        ]
+                  }
+
+                  const tempData = await TempDataModel.create(formattedData)
+                  await res.status(201).json({
+                        status: true,
+                        message: "Added to Temp Data",
+                        tempData
+                  })
+            }
+
+            if(mongoData){
+                  const materialFound = mongoData.data.find( item => item.material === req.body.material )
+
+                  const index = mongoData.data.findIndex(item => item.material === req.body.material );
+
+                  // console.log({index});
+
+                  let key = `data.${index}.quantity`
+
+                  if(materialFound){
+                        const tempData = await TempDataModel.findOneAndUpdate(
+                              filter,
+                              {
+                                  $inc: { [key]: req.body.quantity }
+                              },
+                              { new: true }
+                          );
+      
+                          
+                          await res.status(201).json({
+                              status: true,
+                              message: "Updated to Temp Data",
+                        })
+                  }else{
+                        mongoData.data.push(articleObj)
+                        await mongoData.save()
+                        await res.status(201).json({
+                              status: true,
+                              message: "Updated to Temp Data",
+                        })
+                  }
+            }
+
+
+      }
+      catch (err) {
+            res.status(500).json({
+                  status: false,
+                  message: `${err}`
+            })
+      }
+
+      // try {
+      //       await search(req, res)
+      // }
+      // catch (err) {
+      //       res.status(500).json({
+      //             status: false,
+      //             message: `${err}`
+      //       })
+      // }
+}
+
+
 module.exports = {
       addTempData,
       getAllTempData,
       updateTempData,
-      deleteTempData
+      deleteTempData,
+      createOrUpdateTempData
 }
+
+

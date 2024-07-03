@@ -7,10 +7,12 @@ const {
       addTempData,
       getAllTempData,
       updateTempData,
-      deleteTempData
+      deleteTempData,
+      createOrUpdateTempData
 } = require('../controllers/TempDataController')
 
 router.post('/', tokenVerify, addTempData)
+router.post('/upsert', tokenVerify, createOrUpdateTempData)
 router.get('/', tokenVerify, getAllTempData)
 router.patch('/:id', tokenVerify, updateTempData)
 router.delete('/:id', tokenVerify, deleteTempData)
