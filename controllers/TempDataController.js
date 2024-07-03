@@ -166,6 +166,46 @@ const search = async (req, res) => {
 }
 
 
+// by upol
+
+const getAllTempDataByPost = async (req, res) => {
+      const { po, userId, type}  = req.body
+
+      try {
+            const items = await TempDataModel.findOne({
+                      "userId": userId,
+                      "data.0.po": po,
+                      "type": type
+            })
+            console.log(items);
+            if(items){                  
+                  return res.status(200).json({
+                        status: true,
+                        items:items.data,
+                        count: items.data.length,
+                        message: "Data found"
+                  });
+            }else{
+                  return res.status(200).json({
+                        status: true,
+                        items: [],
+                        count: 0,
+                        message: "Data not found"
+                  });
+
+            }
+      }
+      catch (err) {
+            res.status(500).json({
+                  status: false,
+                  message: `${err}`
+            })
+      }
+     
+
+}
+
+
 const createOrUpdateTempData = async (req, res) => {
 
       let filter = {}
@@ -268,7 +308,8 @@ module.exports = {
       getAllTempData,
       updateTempData,
       deleteTempData,
-      createOrUpdateTempData
+      createOrUpdateTempData,
+      getAllTempDataByPost
 }
 
 
