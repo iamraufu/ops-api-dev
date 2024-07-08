@@ -12,8 +12,7 @@ const productShelvingSchema = new mongoose.Schema({
             required: true
       },
       description: {
-            type: String,
-            required: true
+            type: String, //req removed
       },
       batch: {
             type: String,
@@ -57,6 +56,12 @@ const productShelvingSchema = new mongoose.Schema({
             required: true,
             min: 0,
       },
+      // new
+      unit: {
+            type: String,
+            required: true,
+      },
+
       status: {
             type: String,
             required: true,
