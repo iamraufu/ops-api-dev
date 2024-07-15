@@ -293,6 +293,7 @@ const stoDisplay = async (req, res) => {
                   message: `${err.message === 'fetch failed' ? 'MIS Logged Off the PC where BAPI is Hosted': err}`
             })
       }
+      
 }
 
 module.exports = {
