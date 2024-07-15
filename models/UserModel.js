@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema({
             type: String,
             unique: true,
             // required: true,
-            immutable: true
+            // immutable: true
       },
       password: {
             type: String,
@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema({
             type: String,
             // required: true,
             unique: true,
-            immutable: true
+            // immutable: true
       },
       site: {
             type: Array,
@@ -34,6 +34,7 @@ const userSchema = new mongoose.Schema({
       role: {
             type: String,  // admin or user etc.
             default: "user",
+            ref: "Role"
       },
       hasPermission: {
             type: Array,
