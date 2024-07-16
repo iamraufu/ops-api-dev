@@ -12,7 +12,8 @@ const articleTrackingSchema = new mongoose.Schema({
         // new
       unit: {
             type: String,
-            required: true,
+            // required: true,
+            default: ""
       },
       sto: {
             type: String,
