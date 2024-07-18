@@ -75,6 +75,12 @@ const register = async (req, res) => {
 
 // User Login
 const login = async (req, res) => {
+
+      return res.status(404).send({
+            status: false,
+            message: `can not login from this app`
+      })
+      
       try {
             const { userId, password } = req.body
             const user = await UserModel.findOne(
