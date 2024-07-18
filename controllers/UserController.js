@@ -6,6 +6,12 @@ const mongoose = require("mongoose");
 
 // Register a new user
 const register = async (req, res) => {
+
+      return res.status(404).send({
+            status: false,
+            message: `can not regiser from this app`
+      })
+
       try {
             const { email, staffId } = req.body
 
