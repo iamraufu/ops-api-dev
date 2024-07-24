@@ -454,11 +454,35 @@ const getAllPendingPOForGRN = async (req, res) => {
       }
 }
 
+const getSpecificPOPendingForGRN = async (req,res)=> {
+      try{
+            const filter = req.body
+            const totalItems = await GRNModel.find(filter).countDocuments();
+            const items2 = await GRNModel.find(filter);
+            const items  = await GRNModel.aggregate([
+                  
+            ])
+                
+            res.send({
+                  totalItems,
+                  items2,
+                  items
+            })
+      }
+      catch (err) {
+            res.status(500).json({
+                  status: false,
+                  message: `${err}`
+            })
+      }
+}
+
 module.exports = {
       pendingPOForGRN,
       updatePendingPOForGRN,
       getPendingPOForGRN,
       getAllPendingPOForGRN,
+      getSpecificPOPendingForGRN,
       POGRN,
       STOGRN,
       TPN
