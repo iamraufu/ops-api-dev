@@ -338,13 +338,13 @@ const getAllSTOTracking = async (req,res) => {
             const sortOrder = req.body.query.sortOrder || 'desc'; // asc or desc
 
             const totalItems = await STOTrackingModel.find(filter).countDocuments();
-            const notPickedItems = await STOTrackingModel.find({...filter, pickingEndingTime: null})
+            const notPickedItems = await STOTrackingModel.find({...filter, $expr: { $ne: ["$pickedSku","$sku"]}})
                   .skip((pageSize * (currentPage - 1)))
                   .limit(pageSize)
                   .sort({ [sortBy]: sortOrder })
                   .exec()
 
-            const pickedItems = await STOTrackingModel.find({...filter, pickingEndingTime: { $ne: null}})
+            const pickedItems = await STOTrackingModel.find({...filter, pickedSku: {$gt: 0}})
             .skip((pageSize * (currentPage - 1)))
             .limit(pageSize)
             .sort({ [sortBy]: sortOrder })
