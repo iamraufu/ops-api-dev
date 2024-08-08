@@ -11,10 +11,12 @@ const {
       getArticleInboundPacking,
       getArticleInboundPicked,
       getArticleInboundPacked,
-      updateArticleTracking
+      updateArticleTracking,
+      upsertArticleTracking
 } = require('../controllers/ArticleTrackingController')
 
 router.post('/', tokenVerify, postArticleTracking)
+router.post('/upsert', tokenVerify, upsertArticleTracking)
 router.get('/', tokenVerify, getAllArticleTracking)
 router.get('/in-document', tokenVerify, getArticleInDocument)
 router.get('/inbound-picking', tokenVerify, getArticleInboundPicking)

@@ -1,4 +1,5 @@
 const ArticleTrackingModel = require('../models/ArticleTrackingModel');
+const STOTrackingModel = require('../models/STOTrackingModel');
 
 const postArticleTracking = async (req, res) => {
       try {
@@ -59,6 +60,166 @@ const postArticleTracking = async (req, res) => {
             }
       }
       catch (err) {
+            res.status(500).json({
+                  status: false,
+                  message: `${err}`
+            });
+      }
+}
+
+const upsertArticleTracking = async (req, res) => {
+      try {
+            const { sto, code, quantity, inboundPickedQuantity, inboundPackedQuantity } = req.body
+            
+            const filter = {
+                  sto,
+                  code,
+                  quantity
+            }
+
+            console.log({filter});
+
+            let STOTracking = await STOTrackingModel.findOne({sto})
+
+            // console.log({STOTracking});
+
+            if(STOTracking.pickingStartingTime === null){
+                  STOTracking.pickingStartingTime = new Date()
+            }
+            
+
+            if(quantity === inboundPickedQuantity){
+                  if(STOTracking.pickedSku === null){
+                        STOTracking.pickedSku = 1 
+                        STOTracking.status = "inbound picking"
+
+                  }else{
+                        STOTracking.pickedSku = STOTracking.pickedSku + 1
+                  }      
+            }
+
+            console.log({STOTracking});
+
+            if(STOTracking.sku === STOTracking.pickedSku){
+                  STOTracking.status = "inbound picked"
+            }
+            // console.log({"NewSTOTracking": STOTracking});
+
+            let articleInTracking = await ArticleTrackingModel.findOne(filter)
+
+
+
+
+            // console.log({articleInTracking});
+
+            const isAlreadyArticleInTracking = Boolean(articleInTracking)
+
+            // console.log({isAlreadyArticleInTracking});
+
+            if (isAlreadyArticleInTracking) {
+
+
+
+                  if((articleInTracking.inboundPickedQuantity + inboundPickedQuantity) > quantity){
+                        return res.status(409).json({
+                              status: false,
+                              message: `Inbound Picked Quantity exceeds quantity`
+                        })
+                  }
+
+            
+
+                  if(inboundPickedQuantity > 0 && inboundPickedQuantity < articleInTracking.quantity){
+                        articleInTracking.status = "inbound picking"
+                  }
+
+                  if(inboundPickedQuantity + articleInTracking.inboundPickedQuantity   === articleInTracking.quantity){
+                        articleInTracking.status = "inbound picked"
+                        articleInTracking.inboundPickingEndingTime = new Date()
+                  }
+
+                  articleInTracking.inboundPickedQuantity += inboundPickedQuantity ? inboundPickedQuantity : 0
+                  await articleInTracking.save()
+                  // articleInTracking.inboundPackedQuantity += inboundPackedQuantity ? inboundPackedQuantity : 0
+                  
+                  if(quantity === articleInTracking.inboundPickedQuantity){
+                        if(STOTracking.pickedSku === null){
+                              STOTracking.pickedSku = 1 
+                              STOTracking.status = "inbound picking"
+                              
+                        }else{
+                              STOTracking.pickedSku = STOTracking.pickedSku + 1
+                        }      
+                  }
+
+                  // console.log({STOTracking});
+
+                  if(STOTracking.sku === STOTracking.pickedSku){
+                        STOTracking.status = "inbound picked"
+                        STOTracking.pickingEndingTime = new Date()
+                        
+                  }
+                  
+                  await STOTracking.save()
+
+                  return res.status(200).send({
+                        status: true,
+                        message: `Material ${code} with quantity of ${quantity} of ${sto} has been tracked`,
+                        data: articleInTracking
+                  })
+
+            }
+            else {
+
+
+                  if(inboundPickedQuantity > 0 && inboundPickedQuantity < req.body.quantity){
+                        req.body.status = "inbound picking"
+                        req.body.inboundPickingStartingTime = new Date()
+                  }
+                  
+                  // for full push
+                  if(inboundPickedQuantity === quantity){
+                        req.body.status = "inbound picked"
+                        req.body.inboundPickingEndingTime = new Date()
+                        req.body.inboundPickingStartingTime = new Date()
+                  }
+
+
+
+                  const data = await ArticleTrackingModel.create(req.body)
+                  const wasNull = STOTracking.pickedSku === null
+                  if(quantity === data.inboundPickedQuantity){
+                        if(STOTracking.pickedSku === null){
+                              STOTracking.pickedSku = 1 
+                              STOTracking.status = "inbound picking"
+                              
+                        }
+                        
+                        if(wasNull &&  STOTracking.pickedSku <  STOTracking.sku ){
+                              STOTracking.pickedSku = STOTracking.pickedSku + 1
+                        }      
+                  }
+
+                  // console.log({STOTracking});
+
+                  if(STOTracking.sku === STOTracking.pickedSku){
+                        STOTracking.status = "inbound picked"
+                        STOTracking.pickingEndingTime = new Date()
+                  }
+                  
+                  await STOTracking.save()
+
+                  
+
+                  return res.status(201).send({
+                        status: true,
+                        message: `Material ${code} with quantity of ${quantity} in ${ sto} is ready for tracking`,
+                        data
+                  })
+            }
+      }
+      catch (err) {
+             console.log(err);
             res.status(500).json({
                   status: false,
                   message: `${err}`
@@ -313,5 +474,6 @@ module.exports = {
       getArticleInboundPacking,
       getArticleInboundPicked,
       getArticleInboundPacked,
-      updateArticleTracking
+      updateArticleTracking,
+      upsertArticleTracking
 }
