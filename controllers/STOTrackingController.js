@@ -329,6 +329,8 @@ const search = async (req, res, status) => {
 const getAllSTOTracking = async (req,res) => {
       try {
             const { filter } = req.body
+
+            console.log({filter});
             
             const pageSize = +req.body.query.pageSize || 10;
             const currentPage = +req.body.query.currentPage || 1;
@@ -336,20 +338,26 @@ const getAllSTOTracking = async (req,res) => {
             const sortOrder = req.body.query.sortOrder || 'desc'; // asc or desc
 
             const totalItems = await STOTrackingModel.find(filter).countDocuments();
-            const items = await STOTrackingModel.find(filter)
+            const notPickedItems = await STOTrackingModel.find({...filter, pickingEndingTime: null})
                   .skip((pageSize * (currentPage - 1)))
                   .limit(pageSize)
                   .sort({ [sortBy]: sortOrder })
                   .exec()
 
+            const pickedItems = await STOTrackingModel.find({...filter, pickingEndingTime: { $ne: null}})
+            .skip((pageSize * (currentPage - 1)))
+            .limit(pageSize)
+            .sort({ [sortBy]: sortOrder })
+            .exec()
+
             const responseObject = {
                   status: true,
                   totalPages: Math.ceil(totalItems / pageSize),
                   totalItems,
-                  items
-            };
+                  pickedItems,
+                  notPickedItems            };
 
-            if (items.length) {
+            if (pickedItems.length || notPickedItems.length) {
                   return res.status(200).json(responseObject);
             }
 
