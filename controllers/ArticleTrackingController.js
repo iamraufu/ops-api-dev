@@ -73,8 +73,7 @@ const upsertArticleTracking = async (req, res) => {
             
             const filter = {
                   sto,
-                  code,
-                  quantity
+                  code
             }
 
             console.log({filter});

@@ -14,7 +14,8 @@ const pickingSTO = async (req, res) => {
                   if (matchedItem) {
                         return {
                               ...stoItem,
-                              quantity: stoItem.quantity - matchedItem.inboundPickedQuantity,
+                              quantity: stoItem.quantity,
+                              remainingQuantity: stoItem.quantity - matchedItem.inboundPickedQuantity,
                               bins: articlesInInventory.length ? matchedBin.bins : []
                         }
                   }
