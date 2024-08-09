@@ -16,7 +16,7 @@ const {
       upsertArticleTrackingPacking
 } = require('../controllers/ArticleTrackingController')
 
-router.post('/', tokenVerify, postArticleTracking)
+// router.post('/', tokenVerify, postArticleTracking)
 router.post('/upsert', tokenVerify, upsertArticleTracking)
 router.post('/upsert-packing', tokenVerify, upsertArticleTrackingPacking)
 router.get('/', tokenVerify, getAllArticleTracking)
