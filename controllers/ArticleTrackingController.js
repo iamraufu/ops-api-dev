@@ -76,7 +76,7 @@ const upsertArticleTracking = async (req, res) => {
                   code
             }
 
-            console.log({filter});
+            // console.log({filter});
 
             let STOTracking = await STOTrackingModel.findOne({sto})
 
@@ -97,7 +97,7 @@ const upsertArticleTracking = async (req, res) => {
                   }      
             }
 
-            console.log({STOTracking});
+            // console.log({STOTracking});
 
             if(STOTracking.sku === STOTracking.pickedSku){
                   STOTracking.status = "inbound picked"
@@ -163,42 +163,52 @@ const upsertArticleTracking = async (req, res) => {
 
                   return res.status(200).send({
                         status: true,
-                        message: `Material ${code} with quantity of ${quantity} of ${sto} has been tracked`,
+                        message: `Material ${code} with quantity of ${inboundPackedQuantity} of ${sto} has been tracked`,
                         data: articleInTracking
                   })
 
             }
             else {
-                  console.log("create");
+                  // console.log("create");
 
-                  if(inboundPickedQuantity > 0 && inboundPickedQuantity < req.body.quantity){
-                        req.body.status = "inbound picking"
-                        req.body.inboundPickingStartingTime = new Date()
-                        req.body.dn = STOTracking.dn
+                  let postObj = req.body
+                  
+
+                  if(inboundPickedQuantity > 0 && inboundPickedQuantity < quantity){
+                        postObj.status = "inbound picking"
+                        postObj.inboundPickingStartingTime = new Date()
+                        postObj.dn = STOTracking.dn
                   }
                   
                   // for full push
                   if(inboundPickedQuantity === quantity){
-                        req.body.status = "inbound picked"
-                        req.body.inboundPickingEndingTime = new Date()
-                        req.body.inboundPickingStartingTime = new Date()
-                        req.body.dn = STOTracking.dn
+                        postObj.status = "inbound picked"
+                        postObj.inboundPickingEndingTime = new Date()
+                        postObj.inboundPickingStartingTime = new Date()
+                        postObj.dn = STOTracking.dn
                   }
 
 
+                  // console.log("final data:", postObj)
 
-                  const data = await ArticleTrackingModel.create(req.body)
+                  const data = await ArticleTrackingModel.create(postObj)
+
                   const wasNull = STOTracking.pickedSku === null
+
+                  if(wasNull &&  STOTracking.pickedSku <  STOTracking.sku ){
+                        // STOTracking.pickedSku =  1
+                        STOTracking.status = "inbound picking"
+                  }
+                  
                   if(quantity === data.inboundPickedQuantity){
                         if(STOTracking.pickedSku === null){
                               STOTracking.pickedSku = 1 
-                              STOTracking.status = "inbound picking"
-                              
+                              STOTracking.status = "inbound picking"  
                         }
                         
-                        if(wasNull &&  STOTracking.pickedSku <  STOTracking.sku ){
+                        if( STOTracking.pickedSku <  STOTracking.sku ){
                               STOTracking.pickedSku = STOTracking.pickedSku + 1
-                        }      
+                        }
                   }
 
                   // console.log({STOTracking});
@@ -214,7 +224,7 @@ const upsertArticleTracking = async (req, res) => {
 
                   return res.status(201).send({
                         status: true,
-                        message: `Material ${code} with quantity of ${quantity} in ${ sto} is ready for tracking`,
+                        message: `Material ${code} with quantity of ${inboundPackedQuantity} in ${sto} is ready for tracking`,
                         data
                   })
             }
@@ -453,7 +463,7 @@ const upsertArticleTrackingPacking = async (req, res) => {
             else {
   
   
-                  if(inboundPackedQuantity > 0 && inboundPackedQuantity < req.body.quantity){
+                  if(inboundPackedQuantity > 0 && inboundPackedQuantity < quantity){
                         req.body.status = "inbound packing"
                         req.body.inboundPackingStartingTime = new Date()
                   }
