@@ -191,6 +191,9 @@ const upsertArticleTracking = async (req, res) => {
 
                   // console.log("final data:", postObj)
 
+
+                  postObj = { ...postObj, inboundPickerId: STOTracking.pickerId, inboundPicker: STOTracking.picker}
+
                   const data = await ArticleTrackingModel.create(postObj)
 
                   const wasNull = STOTracking.pickedSku === null
@@ -217,6 +220,8 @@ const upsertArticleTracking = async (req, res) => {
                         STOTracking.status = "inbound picked"
                         STOTracking.pickingEndingTime = new Date()
                   }
+
+                  
                   
                   await STOTracking.save()
 
@@ -360,162 +365,176 @@ const updateArticleTracking = async (req, res) => {
 
 const upsertArticleTrackingPacking = async (req, res) => {
       try {
-            const { sto, code, quantity, inboundPackedQuantity } = req.body
-            
-            const filter = {
-                  sto,
-                  code,
-                  quantity
-            }
+          const { sto, code, quantity, inboundPackedQuantity } = req.body
+          
+          const filter = {
+                sto,
+                code
+          }
   
-            console.log({filter});
+          // console.log({filter});
   
-            let STOTracking = await STOTrackingModel.findOne({sto})
+          let STOTracking = await STOTrackingModel.findOne({sto})
   
-            // console.log({STOTracking});
+          // console.log({STOTracking});
   
-            if(STOTracking.packingStartingTime === null){
-                  STOTracking.packingStartingTime = new Date()
-            }
-            
+          if(STOTracking.packingStartingTime === null){
+                STOTracking.packingStartingTime = new Date()
+          }
+          
   
-            if(quantity === inboundPackedQuantity){
-                  if(STOTracking.packedSku === null){
-                        STOTracking.packedSku = 1 
-                        STOTracking.status = "inbound packing"
+          if(quantity === inboundPackedQuantity){
+                if(STOTracking.packedSku === null){
+                      STOTracking.packedSku = 1 
+                      STOTracking.status = "inbound packing"
   
-                  }else{
-                        STOTracking.packedSku = STOTracking.packedSku + 1
-                  }      
-            }
+                }else{
+                      STOTracking.packedSku = STOTracking.packedSku + 1
+                }      
+          }
   
-          //   console.log({STOTracking});
+          // console.log({STOTracking});
   
-            if(STOTracking.sku === STOTracking.packedSku){
-                  STOTracking.status = "inbound packed"
-            }
-            // console.log({"NewSTOTracking": STOTracking});
+          if(STOTracking.sku === STOTracking.packedSku){
+                STOTracking.status = "inbound packed"
+          }
+          // console.log({"NewSTOTracking": STOTracking});
   
-            let articleInTracking = await ArticleTrackingModel.findOne(filter)
-  
+          let articleInTracking = await ArticleTrackingModel.findOne(filter)
   
   
   
-            // console.log({articleInTracking});
   
-            const isAlreadyArticleInTracking = Boolean(articleInTracking)
+          // console.log({articleInTracking});
   
-            // console.log({isAlreadyArticleInTracking});
+          const isAlreadyArticleInTracking = Boolean(articleInTracking)
   
-            if (isAlreadyArticleInTracking) {
+          // console.log({isAlreadyArticleInTracking});
+  
+          if (isAlreadyArticleInTracking) {
+  
+                if((articleInTracking.inboundPackedQuantity + inboundPackedQuantity) > quantity){
+                      return res.status(409).json({
+                            status: false,
+                            message: `Inbound packed Quantity exceeds quantity`
+                      })
+                }
+  
+          
+  
+                if(inboundPackedQuantity > 0 && inboundPackedQuantity < articleInTracking.quantity){
+                      articleInTracking.status = "inbound packing"
+                }
+  
+                if(inboundPackedQuantity + articleInTracking.inboundPackedQuantity   === articleInTracking.quantity){
+                      articleInTracking.status = "inbound packed"
+                      articleInTracking.inboundPackingEndingTime = new Date()
+                }
+  
+                articleInTracking.inboundPackedQuantity += inboundPackedQuantity ? inboundPackedQuantity : 0
+                await articleInTracking.save()
+                // articleInTracking.inboundPackedQuantity += inboundPackedQuantity ? inboundPackedQuantity : 0
+                
+                if(quantity === articleInTracking.inboundPackedQuantity){
+                      if(STOTracking.packedSku === null){
+                            STOTracking.packedSku = 1 
+                            STOTracking.status = "inbound packing"
+                            
+                      }else{
+                            STOTracking.packedSku = STOTracking.packedSku + 1
+                      }      
+                }
+  
+                // console.log({STOTracking});
+  
+                if(STOTracking.sku === STOTracking.packedSku){
+                      STOTracking.status = "inbound packed"
+                      STOTracking.packingEndingTime = new Date()
+                      
+                }
+                
+                await STOTracking.save()
+  
+                return res.status(200).send({
+                      status: true,
+                      message: `Material ${code} with quantity of ${inboundPackedQuantity} of ${sto} has been tracked`,
+                      data: articleInTracking
+                })
+  
+          }
+          else {
+                // console.log("create");
+  
+                let postObj = req.body
+                
+  
+                if(inboundPackedQuantity > 0 && inboundPackedQuantity < quantity){
+                      postObj.status = "inbound packing"
+                      postObj.inboundPackingStartingTime = new Date()
+                      postObj.dn = STOTracking.dn
+                }
+                
+                // for full push
+                if(inboundPackedQuantity === quantity){
+                      postObj.status = "inbound packed"
+                      postObj.inboundPackingEndingTime = new Date()
+                      postObj.inboundPackingStartingTime = new Date()
+                      postObj.dn = STOTracking.dn
+                }
   
   
-  
-                  if((articleInTracking.inboundPackedQuantity + inboundPackedQuantity) > quantity){
-                        return res.status(409).json({
-                              status: false,
-                              message: `Inbound Packed Quantity exceeds quantity`
-                        })
-                  }
-  
-            
-  
-                  if(inboundPackedQuantity > 0 && inboundPackedQuantity < articleInTracking.quantity){
-                        articleInTracking.status = "inbound packing"
-                  }
-  
-                  if(inboundPackedQuantity + articleInTracking.inboundPackedQuantity   === articleInTracking.quantity){
-                        articleInTracking.status = "inbound packed"
-                        articleInTracking.inboundPackingEndingTime = new Date()
-                  }
-  
-                  articleInTracking.inboundPackedQuantity += inboundPackedQuantity ? inboundPackedQuantity : 0
-                  await articleInTracking.save()
-                  // articleInTracking.inboundPackedQuantity += inboundPackedQuantity ? inboundPackedQuantity : 0
-                  
-                  if(quantity === articleInTracking.inboundPackedQuantity){
-                        if(STOTracking.packedSku === null){
-                              STOTracking.packedSku = 1 
-                              STOTracking.status = "inbound packing"
-                              
-                        }else{
-                              STOTracking.packedSku = STOTracking.packedSku + 1
-                        }      
-                  }
-  
-                  // console.log({STOTracking});
-  
-                  if(STOTracking.sku === STOTracking.packedSku){
-                        STOTracking.status = "inbound packed"
-                        STOTracking.packingEndingTime = new Date()
-                        
-                  }
-                  
-                  await STOTracking.save()
-  
-                  return res.status(200).send({
-                        status: true,
-                        message: `Material ${code} with quantity of ${quantity} of ${sto} has been tracked`,
-                        data: articleInTracking
-                  })
-  
-            }
-            else {
+                // console.log("final data:", postObj)
   
   
-                  if(inboundPackedQuantity > 0 && inboundPackedQuantity < quantity){
-                        req.body.status = "inbound packing"
-                        req.body.inboundPackingStartingTime = new Date()
-                  }
-                  
-                  // for full push
-                  if(inboundPackedQuantity === quantity){
-                        req.body.status = "inbound packed"
-                        req.body.inboundPackingEndingTime = new Date()
-                        req.body.inboundPackingStartingTime = new Date()
-                  }
+                postObj = { ...postObj, inboundPackerId: STOTracking.packerId, inboundPacker: STOTracking.packer}
   
+                const data = await ArticleTrackingModel.create(postObj)
   
+                const wasNull = STOTracking.packedSku === null
   
-                  const data = await ArticleTrackingModel.create(req.body)
-                  const wasNull = STOTracking.packedSku === null
-                  if(quantity === data.inboundPackedQuantity){
-                        if(STOTracking.packedSku === null){
-                              STOTracking.packedSku = 1 
-                              STOTracking.status = "inbound packing"
-                              
-                        }
-                        
-                        if(wasNull &&  STOTracking.packedSku <  STOTracking.sku ){
-                              STOTracking.packedSku = STOTracking.packedSku + 1
-                        }      
-                  }
+                if(wasNull &&  STOTracking.packedSku <  STOTracking.sku ){
+                      // STOTracking.packedSku =  1
+                      STOTracking.status = "inbound packing"
+                }
+                
+                if(quantity === data.inboundPackedQuantity){
+                      if(STOTracking.packedSku === null){
+                            STOTracking.packedSku = 1 
+                            STOTracking.status = "inbound packing"  
+                      }
+                      
+                      if( STOTracking.packedSku <  STOTracking.sku ){
+                            STOTracking.packedSku = STOTracking.packedSku + 1
+                      }
+                }
   
-                  // console.log({STOTracking});
+                // console.log({STOTracking});
   
-                  if(STOTracking.sku === STOTracking.packedSku){
-                        STOTracking.status = "inbound packed"
-                        STOTracking.packingEndingTime = new Date()
-                  }
-                  
-                  await STOTracking.save()
+                if(STOTracking.sku === STOTracking.packedSku){
+                      STOTracking.status = "inbound packed"
+                      STOTracking.packingEndingTime = new Date()
+                }
   
-                  
+                
+                
+                await STOTracking.save()
   
-                  return res.status(201).send({
-                        status: true,
-                        message: `Material ${code} with quantity of ${quantity} in ${ sto} is ready for tracking`,
-                        data
-                  })
-            }
-      }
-      catch (err) {
-             console.log(err);
-            res.status(500).json({
-                  status: false,
-                  message: `${err}`
-            });
-      }
+                
+  
+                return res.status(201).send({
+                      status: true,
+                      message: `Material ${code} with quantity of ${inboundPackedQuantity} in ${sto} is ready for tracking`,
+                      data
+                })
+          }
+    }
+    catch (err) {
+           console.log(err);
+          res.status(500).json({
+                status: false,
+                message: `${err}`
+          });
+    }
   }
 
 // Get all article
