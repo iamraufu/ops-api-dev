@@ -48,6 +48,10 @@ const stoTrackingSchema = new mongoose.Schema({
             type: Number,
             default: null
       },
+      packedSku: {
+            type: Number,
+            default: null
+      },
       status: {
             type: String,
             default: 'pending for dn',
