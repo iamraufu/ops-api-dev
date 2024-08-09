@@ -25,7 +25,7 @@ const pickingSTO = async (req, res) => {
                               bins: articlesInInventory.length ? matchedBin.bins : []
                         }
                   }
-            }).filter(item => item.quantity !==0)
+            }).filter(item => item.remainingQuantity !==0 )
 
             const responseObject = {
                   status: true,

@@ -163,7 +163,7 @@ const upsertArticleTracking = async (req, res) => {
 
                   return res.status(200).send({
                         status: true,
-                        message: `Material ${code} with quantity of ${quantity} of ${sto} has been tracked by UPOL (update)`,
+                        message: `Material ${code} with quantity of ${quantity} of ${sto} has been tracked`,
                         data: articleInTracking
                   })
 
@@ -214,7 +214,7 @@ const upsertArticleTracking = async (req, res) => {
 
                   return res.status(201).send({
                         status: true,
-                        message: `Material ${code} with quantity of ${quantity} in ${ sto} is ready for tracking UPOL (create)`,
+                        message: `Material ${code} with quantity of ${quantity} in ${ sto} is ready for tracking`,
                         data
                   })
             }
