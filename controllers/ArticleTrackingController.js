@@ -118,7 +118,7 @@ const upsertArticleTracking = async (req, res) => {
 
             if (isAlreadyArticleInTracking) {
 
-
+                  console.log("update");
 
                   if((articleInTracking.inboundPickedQuantity + inboundPickedQuantity) > quantity){
                         return res.status(409).json({
@@ -164,13 +164,13 @@ const upsertArticleTracking = async (req, res) => {
 
                   return res.status(200).send({
                         status: true,
-                        message: `Material ${code} with quantity of ${quantity} of ${sto} has been tracked`,
+                        message: `Material ${code} with quantity of ${quantity} of ${sto} has been tracked by UPOL (create)`,
                         data: articleInTracking
                   })
 
             }
             else {
-
+                  console.log("create");
 
                   if(inboundPickedQuantity > 0 && inboundPickedQuantity < req.body.quantity){
                         req.body.status = "inbound picking"
@@ -215,7 +215,7 @@ const upsertArticleTracking = async (req, res) => {
 
                   return res.status(201).send({
                         status: true,
-                        message: `Material ${code} with quantity of ${quantity} in ${ sto} is ready for tracking`,
+                        message: `Material ${code} with quantity of ${quantity} in ${ sto} is ready for tracking UPOL (update)`,
                         data
                   })
             }
