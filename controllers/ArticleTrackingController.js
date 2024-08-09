@@ -175,6 +175,7 @@ const upsertArticleTracking = async (req, res) => {
                   if(inboundPickedQuantity > 0 && inboundPickedQuantity < req.body.quantity){
                         req.body.status = "inbound picking"
                         req.body.inboundPickingStartingTime = new Date()
+                        req.body.dn = STOTracking.dn
                   }
                   
                   // for full push
@@ -182,6 +183,7 @@ const upsertArticleTracking = async (req, res) => {
                         req.body.status = "inbound picked"
                         req.body.inboundPickingEndingTime = new Date()
                         req.body.inboundPickingStartingTime = new Date()
+                        req.body.dn = STOTracking.dn
                   }
 
 
