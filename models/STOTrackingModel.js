@@ -19,15 +19,15 @@ const stoTrackingSchema = new mongoose.Schema({
             required: true,
             immutable: true
       },
-      createdAt: {
-            type: Date,
-            default: new Date(),
-            immutable: true
-      },
-      updatedAt: {
-            type: Date,
-            default: null
-      },
+      // createdAt: {
+      //       type: Date,
+      //       default: new Date(),
+      //       immutable: true
+      // },
+      // updatedAt: {
+      //       type: Date,
+      //       default: null
+      // },
       deliveryDate: {
             type: Date,
             default: null
@@ -89,6 +89,6 @@ const stoTrackingSchema = new mongoose.Schema({
             type: Date,
             default: null,
       }
-})
+},{timestamps: true})
 
 module.exports = mongoose.model("STOTracking", stoTrackingSchema)

@@ -103,11 +103,11 @@ const upsertArticleTracking = async (req, res) => {
       code,
     };
 
-    // console.log({filter});
+
 
     let STOTracking = await STOTrackingModel.findOne({ sto });
 
-    // console.log({STOTracking});
+  
 
     if (STOTracking.pickingStartingTime === null) {
       STOTracking.pickingStartingTime = new Date();
@@ -169,16 +169,18 @@ const upsertArticleTracking = async (req, res) => {
         ? inboundPickedQuantity
         : 0;
       await articleInTracking.save();
-      // articleInTracking.inboundPackedQuantity += inboundPackedQuantity ? inboundPackedQuantity : 0
-
-      // if (quantity === articleInTracking.inboundPickedQuantity) {
-      //   if (STOTracking.pickedSku === null) {
-      //     STOTracking.pickedSku = 1;
-      //     STOTracking.status = "inbound picking";
-      //   } else {
-      //     STOTracking.pickedSku = STOTracking.pickedSku + 1;
-      //   }
-      // }
+     
+      console.log(quantity, articleInTracking.inboundPickedQuantity, inboundPickedQuantity );
+      if (quantity === articleInTracking.inboundPickedQuantity) {
+        if (STOTracking.pickedSku === null) {
+          STOTracking.pickedSku = 1;
+          STOTracking.status = "inbound picking";
+          console.log("first time ",{STOTracking});
+        } else {
+          STOTracking.pickedSku = STOTracking.pickedSku + 1;
+          console.log("update: ",{STOTracking});
+        }
+      }
 
       // console.log({STOTracking});
 
@@ -230,16 +232,16 @@ const upsertArticleTracking = async (req, res) => {
         STOTracking.status = "inbound picking";
       }
 
-      if (quantity === data.inboundPickedQuantity) {
-        if (STOTracking.pickedSku === null) {
-          STOTracking.pickedSku = 1;
-          STOTracking.status = "inbound picking";
-        }
+      // if (quantity === data.inboundPickedQuantity) {
+      //   if (STOTracking.pickedSku === null) {
+      //     STOTracking.pickedSku = 1;
+      //     STOTracking.status = "inbound picking";
+      //   }
 
-        if (STOTracking.pickedSku < STOTracking.sku) {
-          STOTracking.pickedSku = STOTracking.pickedSku + 1;
-        }
-      }
+      //   if (STOTracking.pickedSku < STOTracking.sku) {
+      //     STOTracking.pickedSku = STOTracking.pickedSku + 1;
+      //   }
+      // }
 
       // console.log({STOTracking});
 
@@ -264,6 +266,23 @@ const upsertArticleTracking = async (req, res) => {
     });
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 const updateArticleTracking = async (req, res) => {
   try {
@@ -418,21 +437,21 @@ const upsertArticleTrackingPacking = async (req, res) => {
       STOTracking.packingStartingTime = new Date();
     }
 
-    if (quantity === inboundPackedQuantity) {
-      if (STOTracking.packedSku === null) {
-        STOTracking.packedSku = 1;
-        STOTracking.status = "inbound packing";
-      } else {
-        STOTracking.packedSku = STOTracking.packedSku + 1;
-      }
-    }
+    // if (quantity === inboundPackedQuantity) {
+    //   if (STOTracking.packedSku === null) {
+    //     STOTracking.packedSku = 1;
+    //     STOTracking.status = "inbound packing";
+    //   } else {
+    //     STOTracking.packedSku = STOTracking.packedSku + 1;
+    //   }
+    // }
 
-    // console.log({STOTracking});
+    // // console.log({STOTracking});
 
-    if (STOTracking.sku === STOTracking.packedSku) {
-      STOTracking.status = "inbound packed";
-      STOTracking.packingEndingTime = new Date();
-    }
+    // if (STOTracking.sku === STOTracking.packedSku) {
+    //   STOTracking.status = "inbound packed";
+    //   STOTracking.packingEndingTime = new Date();
+    // }
     // console.log({"NewSTOTracking": STOTracking});
 
     let articleInTracking = await ArticleTrackingModel.findOne(filter);
@@ -486,22 +505,22 @@ const upsertArticleTrackingPacking = async (req, res) => {
 
       await articleInTracking.save();
       // articleInTracking.inboundPackedQuantity += inboundPackedQuantity ? inboundPackedQuantity : 0
+      console.log(quantity, articleInTracking.inboundPackedQuantity);
+      if (quantity === articleInTracking.inboundPackedQuantity) {
+        if (STOTracking.packedSku === null) {
+          STOTracking.packedSku = 1;
+          STOTracking.status = "inbound packing";
+        } else {
+          STOTracking.packedSku = STOTracking.packedSku + 1;
+        }
+      }
 
-      // if (quantity === articleInTracking.inboundPackedQuantity) {
-      //   if (STOTracking.packedSku === null) {
-      //     STOTracking.packedSku = 1;
-      //     STOTracking.status = "inbound packing";
-      //   } else {
-      //     STOTracking.packedSku = STOTracking.packedSku + 1;
-      //   }
-      // }
+      // console.log({STOTracking});
 
-      // // console.log({STOTracking});
-
-      // if (STOTracking.sku === STOTracking.packedSku) {
-      //   STOTracking.status = "inbound packed";
-      //   STOTracking.packingEndingTime = new Date();
-      // }
+      if (STOTracking.sku === STOTracking.packedSku) {
+        STOTracking.status = "inbound packed";
+        STOTracking.packingEndingTime = new Date();
+      }
 
       await STOTracking.save();
 
@@ -511,56 +530,7 @@ const upsertArticleTrackingPacking = async (req, res) => {
         data: articleInTracking,
       });
     } else {
-      // console.log("create");
-
-      //     let postObj = req.body
-
-      //     if(inboundPackedQuantity > 0 && inboundPackedQuantity < quantity){
-      //           postObj.status = "inbound packing"
-      //           postObj.inboundPackingStartingTime = new Date()
-      //           postObj.dn = STOTracking.dn
-      //     }
-
-      // for full push
-      //     if(inboundPackedQuantity === quantity){
-      //           postObj.status = "inbound packed"
-      //           postObj.inboundPackingEndingTime = new Date()
-      //           postObj.inboundPackingStartingTime = new Date()
-      //           postObj.dn = STOTracking.dn
-      //     }
-
-      // console.log("final data:", postObj)
-
-      //     postObj = { ...postObj, inboundPackerId: STOTracking.packerId, inboundPacker: STOTracking.packer}
-
-      //     const data = await ArticleTrackingModel.create(postObj)
-
-      //     const wasNull = STOTracking.packedSku === null
-
-      //     if(wasNull &&  STOTracking.packedSku <  STOTracking.sku ){
-      //           // STOTracking.packedSku =  1
-      //           STOTracking.status = "inbound packing"
-      //     }
-
-      //     if(quantity === data.inboundPackedQuantity){
-      //           if(STOTracking.packedSku === null){
-      //                 STOTracking.packedSku = 1
-      //                 STOTracking.status = "inbound packing"
-      //           }
-
-      //           if( STOTracking.packedSku <  STOTracking.sku ){
-      //                 STOTracking.packedSku = STOTracking.packedSku + 1
-      //           }
-      //     }
-
-      //     // console.log({STOTracking});
-
-      //     if(STOTracking.sku === STOTracking.packedSku){
-      //           STOTracking.status = "inbound packed"
-      //           STOTracking.packingEndingTime = new Date()
-      //     }
-
-      //     await STOTracking.save()
+      
 
       return res.status(202).send({
         status: false,
