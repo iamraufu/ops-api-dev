@@ -138,7 +138,7 @@ const upsertArticleTracking = async (req, res) => {
     // console.log({isAlreadyArticleInTracking});
 
     if (isAlreadyArticleInTracking) {
-      console.log("update");
+      // console.log("update");
 
       if (
         articleInTracking.inboundPickedQuantity + inboundPickedQuantity >
@@ -171,14 +171,14 @@ const upsertArticleTracking = async (req, res) => {
       await articleInTracking.save();
       // articleInTracking.inboundPackedQuantity += inboundPackedQuantity ? inboundPackedQuantity : 0
 
-      if (quantity === articleInTracking.inboundPickedQuantity) {
-        if (STOTracking.pickedSku === null) {
-          STOTracking.pickedSku = 1;
-          STOTracking.status = "inbound picking";
-        } else {
-          STOTracking.pickedSku = STOTracking.pickedSku + 1;
-        }
-      }
+      // if (quantity === articleInTracking.inboundPickedQuantity) {
+      //   if (STOTracking.pickedSku === null) {
+      //     STOTracking.pickedSku = 1;
+      //     STOTracking.status = "inbound picking";
+      //   } else {
+      //     STOTracking.pickedSku = STOTracking.pickedSku + 1;
+      //   }
+      // }
 
       // console.log({STOTracking});
 

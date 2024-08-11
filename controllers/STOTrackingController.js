@@ -337,18 +337,21 @@ const getAllSTOTracking = async (req,res) => {
             const sortBy = req.body.query.sortBy || '_id'; // _id or description or code or po or etc.
             const sortOrder = req.body.query.sortOrder || 'desc'; // asc or desc
 
-            const totalItems = await STOTrackingModel.find(filter).countDocuments();
+            // const totalItems = await STOTrackingModel.find(filter).countDocuments();
             const notPickedItems = await STOTrackingModel.find({...filter, $expr: { $ne: ["$pickedSku","$sku"]}})
                   .skip((pageSize * (currentPage - 1)))
                   .limit(pageSize)
                   .sort({ [sortBy]: sortOrder })
                   .exec()
 
-            const pickedItems = await STOTrackingModel.find({...filter, pickedSku: {$gt: 0}})
+            const pickedItems = await STOTrackingModel.find({...filter, pickedSku: {$gt: 0}, $expr: { $ne: ["$packedSku","$sku"]}})
             .skip((pageSize * (currentPage - 1)))
             .limit(pageSize)
             .sort({ [sortBy]: sortOrder })
             .exec()
+
+
+            const totalItems = notPickedItems.length + pickedItems.length
 
             const responseObject = {
                   status: true,
