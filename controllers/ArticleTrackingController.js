@@ -103,11 +103,7 @@ const upsertArticleTracking = async (req, res) => {
       code,
     };
 
-
-
     let STOTracking = await STOTrackingModel.findOne({ sto });
-
-  
 
     if (STOTracking.pickingStartingTime === null) {
       STOTracking.pickingStartingTime = new Date();
@@ -169,16 +165,20 @@ const upsertArticleTracking = async (req, res) => {
         ? inboundPickedQuantity
         : 0;
       await articleInTracking.save();
-     
-      console.log(quantity, articleInTracking.inboundPickedQuantity, inboundPickedQuantity );
+
+      console.log(
+        quantity,
+        articleInTracking.inboundPickedQuantity,
+        inboundPickedQuantity
+      );
       if (quantity === articleInTracking.inboundPickedQuantity) {
         if (STOTracking.pickedSku === null) {
           STOTracking.pickedSku = 1;
           STOTracking.status = "inbound picking";
-          console.log("first time ",{STOTracking});
+          console.log("first time ", { STOTracking });
         } else {
           STOTracking.pickedSku = STOTracking.pickedSku + 1;
-          console.log("update: ",{STOTracking});
+          console.log("update: ", { STOTracking });
         }
       }
 
@@ -267,23 +267,6 @@ const upsertArticleTracking = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const updateArticleTracking = async (req, res) => {
   try {
     const {
@@ -300,6 +283,7 @@ const updateArticleTracking = async (req, res) => {
       packingEndingTime,
       pickedQuantity,
       status,
+      childPackedQuantity
     } = req.body;
 
     const filter = {
@@ -397,6 +381,9 @@ const updateArticleTracking = async (req, res) => {
       articleInTracking.pickedQuantity = pickedQuantity
         ? pickedQuantity
         : articleInTracking.pickedQuantity || null;
+      articleInTracking.childPackedQuantity = childPackedQuantity
+        ? childPackedQuantity
+        : articleInTracking.childPackedQuantity || null;
       articleInTracking.status = status
         ? status
         : articleInTracking.status || null;
@@ -530,8 +517,6 @@ const upsertArticleTrackingPacking = async (req, res) => {
         data: articleInTracking,
       });
     } else {
-      
-
       return res.status(202).send({
         status: false,
         message: `No Article Data availeable for Packing`,
