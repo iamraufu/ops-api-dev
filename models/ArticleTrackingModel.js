@@ -23,6 +23,10 @@ const articleTrackingSchema = new mongoose.Schema({
             type: String,
             default: null
       },
+      dnItem: {
+            type: String,
+            default: null
+      },
       grn: {
             type: String,
             default: null
