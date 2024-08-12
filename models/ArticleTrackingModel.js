@@ -60,6 +60,10 @@ const articleTrackingSchema = new mongoose.Schema({
             type: Number,
             default: 0
       },
+      childPackedQuantity: {
+            type: Number,
+            default: null
+      },
       inboundPicker: {
             type: String,
             default: null
@@ -76,6 +80,7 @@ const articleTrackingSchema = new mongoose.Schema({
             type: String,
             default: ''
       },
+      
       inboundPickingStartingTime: {
             type: Date,
             default: null
