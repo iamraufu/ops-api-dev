@@ -350,12 +350,18 @@ const getAllSTOTracking = async (req,res) => {
             .sort({ [sortBy]: sortOrder })
             .exec()
 
+            const items = await STOTrackingModel.find(filter)
+            .skip((pageSize * (currentPage - 1)))
+            .limit(pageSize)
+            .sort({ [sortBy]: sortOrder })
+            .exec()
 
             const totalItems = notPickedItems.length + pickedItems.length
 
             const responseObject = {
                   status: true,
                   totalPages: Math.ceil(totalItems / pageSize),
+                  items,
                   totalItems,
                   pickedItems,
                   notPickedItems            };
@@ -365,7 +371,7 @@ const getAllSTOTracking = async (req,res) => {
             }
 
             else {
-                  return res.status(401).json({
+                  return res.status(404).json({
                         status: false,
                         message: "Nothing found",
                         items
@@ -379,6 +385,9 @@ const getAllSTOTracking = async (req,res) => {
             });
       }
 }
+
+
+
 
 module.exports = {
       postSTOTracking,
