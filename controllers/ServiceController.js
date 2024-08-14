@@ -42,7 +42,7 @@ const pickingSTO = async (req, res) => {
                   return res.status(401).json({
                         status: false,
                         message: "Nothing found",
-                        items
+                        items: finalStoDetails,
                   });
             }
       }
