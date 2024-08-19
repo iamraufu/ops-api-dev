@@ -414,7 +414,7 @@ const upsertArticleTrackingPacking = async (req, res) => {
       code,
     };
 
-    // console.log({filter});
+    console.log({filter});
 
     let STOTracking = await STOTrackingModel.findOne({ sto });
 
@@ -464,6 +464,7 @@ const upsertArticleTrackingPacking = async (req, res) => {
         inboundPackedQuantity > 0 &&
         inboundPackedQuantity < articleInTracking.quantity
       ) {
+        console.log("partially packing");
         articleInTracking.status = "inbound packing";
         articleInTracking.inboundPackingStartingTime = new Date();
       }
@@ -472,11 +473,13 @@ const upsertArticleTrackingPacking = async (req, res) => {
         inboundPackedQuantity + articleInTracking.inboundPackedQuantity ===
         articleInTracking.quantity
       ) {
+        console.log("1b1 packed");
         articleInTracking.status = "inbound packed";
         articleInTracking.inboundPackingEndingTime = new Date();
       }
 
       if (inboundPackedQuantity === quantity) {
+        console.log("fully packed");
         articleInTracking.status = "inbound packed";
         articleInTracking.inboundPackingEndingTime = new Date();
         articleInTracking.inboundPackingStartingTime = new Date();
@@ -493,11 +496,14 @@ const upsertArticleTrackingPacking = async (req, res) => {
       await articleInTracking.save();
       // articleInTracking.inboundPackedQuantity += inboundPackedQuantity ? inboundPackedQuantity : 0
       console.log(quantity, articleInTracking.inboundPackedQuantity);
+      console.log({STOTracking});
       if (quantity === articleInTracking.inboundPackedQuantity) {
         if (STOTracking.packedSku === null) {
+          console.log("sto pack first");
           STOTracking.packedSku = 1;
           STOTracking.status = "inbound packing";
         } else {
+          console.log("sto pack increasing");
           STOTracking.packedSku = STOTracking.packedSku + 1;
         }
       }
@@ -508,6 +514,12 @@ const upsertArticleTrackingPacking = async (req, res) => {
         STOTracking.status = "inbound packed";
         STOTracking.packingEndingTime = new Date();
       }
+
+
+      // if (STOTracking.sku === STOTracking.packedSku) {
+      //   STOTracking.status = "inbound packed";
+      //   STOTracking.packingEndingTime = new Date();
+      // }
 
       await STOTracking.save();
 
