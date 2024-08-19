@@ -22,6 +22,10 @@ const childPackingModel = new mongoose.Schema({
             type: String,
             required: true
       },
+      status: {
+            type: String,
+            required: true
+      },
       count: {
             type: Number,
             required: true,
@@ -60,7 +64,7 @@ const childPackingModel = new mongoose.Schema({
                   }
             ]
       }
-})
+},{timestamps: true})
 
 childPackingModel.index({ barcode: 1 })
 
