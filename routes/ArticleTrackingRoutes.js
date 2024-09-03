@@ -13,7 +13,12 @@ const {
       getArticleInboundPacked,
       updateArticleTracking,
       upsertArticleTracking,
-      upsertArticleTrackingPacking
+      upsertArticleTrackingPacking,
+
+      // new routes
+      pickingArticles,
+      packingArticles,
+      // sendToPackingZone
 } = require('../controllers/ArticleTrackingController')
 
 // router.post('/', tokenVerify, postArticleTracking)
@@ -26,5 +31,11 @@ router.get('/inbound-packing', tokenVerify, getArticleInboundPacking)
 router.get('/inbound-picked', tokenVerify, getArticleInboundPicked)
 router.get('/inbound-packed', tokenVerify, getArticleInboundPacked)
 router.patch('/update', tokenVerify, updateArticleTracking)
+
+
+// new routes
+router.post('/picking', tokenVerify, pickingArticles)
+router.post('/packing', tokenVerify, packingArticles)
+// router.post('/send-to-packing-zone', tokenVerify, sendToPackingZone)
 
 module.exports = router

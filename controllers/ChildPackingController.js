@@ -1,4 +1,7 @@
 const ChildPackingModel = require("../models/ChildPackingModel");
+const STOTrackingModel2 = require("../models/new_models/STOTrackingV2Model");
+const ArticleTrackingModel2 = require("../models/new_models/ArticleTrackingV2Model");
+
 
 const generateChildPackingList = async (req, res) => {
   try {
@@ -48,6 +51,84 @@ const generateChildPackingList = async (req, res) => {
     });
   }
 };
+
+// const generateChildPackingList = async (req, res) => {
+//   try {
+//     const data = req.body;
+
+
+//     // console.log(data);
+
+//     const stoDetails = await STOTrackingModel2.findOne({sto: data.sto})
+
+//     // console.log({stoDetails});
+
+//     let newObj = {
+//       sto: stoDetails.sto,
+//       dn: stoDetails.dn,
+//       supplyingSite: stoDetails.supplyingPlant,
+//       receivingSite: stoDetails.receivingPlant,
+//       packedBy: stoDetails.packing.packerId,
+//       dateTimePacked: new Date(),
+//       list: req.body.list
+//     }
+
+//     console.log({newObj});
+
+
+
+//     const foundChildPackingList = await ChildPackingModel.find({ sto: newObj.sto })
+//       .sort({ _id: -1 })
+//       .limit(1);
+
+//     console.log({foundChildPackingList});
+//     let updatedCount =
+//       foundChildPackingList.length > 0 ? foundChildPackingList[0].count : 1;
+
+//     console.log({updatedCount});
+
+//     if (foundChildPackingList.length > 0) {
+//       updatedCount = foundChildPackingList[0].count + 1;
+//     }
+
+//     let padding;
+//     if (updatedCount >= 1 && updatedCount <= 9) {
+//       padding = "00";
+//     } else if (updatedCount >= 10 && updatedCount <= 99) {
+//       padding = "0";
+//     } else {
+//       return updatedCount;
+//     }
+
+//     updatedCount = padding + updatedCount;
+
+//     console.log({updatedCount});
+//     const barcode = `${newObj.receivingSite}-${newObj.sto.slice(-6)}-${updatedCount}`;
+
+//     const updatedData = {
+//       ...req.body,
+//       barcode,
+//       count: parseInt(updatedCount),
+//     };
+
+
+//     console.log(updatedCount);
+
+//     // const data = await ChildPackingModel.create(updatedData);
+
+//     return res.status(201).send({
+//       status: true,
+//       message: `Child Packing Created Successfully`,
+//       data,
+//     });
+//   } catch (err) {
+//     res.status(500).json({
+//       status: false,
+//       message: `${err}`,
+//     });
+//   }
+// };
+
 
 const getChildPackingList = async (req, res) => {
   try {
@@ -106,6 +187,62 @@ const getChildPackingByPost = async (req, res) => {
   }
 };
 
+
+
+// const sendToPackingZone = async (req, res) => {
+//   const now = new Date();
+
+//   try {
+//     const { sto } = req.body;
+
+//     // 1. Check if the STO exists in STOTracking
+//     const stoTracking = await STOTrackingModel2.findOne({ sto }).populate([
+//       {
+//         path: "articleTrackings",
+//       },
+//     ]);
+
+//     if (!stoTracking) {
+//       return res.status(404).json({ status:false, message: "STO not found" });
+//     }
+
+//     const articlesToUpdate = stoTracking.articleTrackings;
+
+//     // const updatedArticles = []
+//     articlesToUpdate.map(async (item) => {
+
+//       let updateObj = {
+//         status : "inbound packing",
+//         "packing.startedAt" : now,
+//         "packing.inboundPackedQuantity" : item.picking.inboundPickedQuantity,
+//         "packing.packer" : stoTracking.packing.packer,
+//         "packing.packerId" : stoTracking.packing.packerId,
+//         "packing.childPackedQuantity" : 0
+//       }
+
+//        await ArticleTrackingModel2.findOneAndUpdate({_id:item._id},{$set: updateObj}, { new: true })
+//       // console.log(updatedData);
+//     });
+
+//      // Set picking details on the STO
+//      stoTracking.packing.startedAt = now;
+
+//      stoTracking.status = "inbound packing";
+
+//      await stoTracking.save()
+     
+
+//     return res
+//       .status(200)
+//       .json({ message: "Successfully Submitted", stoTracking, status: true });
+//   } catch (error) {
+//     console.error("Error:", error);
+//     return res
+//       .status(500)
+//       .json({ message: "Internal Server Error", status: false });
+//   }
+// };
+
 const search = async (req, res) => {
   let filter = {};
 
@@ -147,5 +284,8 @@ module.exports = {
   generateChildPackingList,
   getChildPackingList,
   updateChildPackingList,
-  getChildPackingByPost
+  getChildPackingByPost,
+
+  sendToPackingZone
+  
 };

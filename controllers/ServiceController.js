@@ -1,21 +1,80 @@
 const InventoryModel = require('../models/InventoryModel')
 const ArticleTrackingModel = require('../models/ArticleTrackingModel');
+const ArticleTrackingModel2 = require('../models/new_models/ArticleTrackingV2Model');
+
+// const pickingSTO = async (req, res) => {
+//       try {
+//             const { sto, site } = req.body
+//             let stoDetails = await getStoDetails(sto)
+//             const articles = stoDetails.items.map(item => item.material)
+//             const articlesInInventory = await groupInventoryArticles(articles, site)
+//             const articleInTracking = await ArticleTrackingModel.find({ sto })
+//             const finalStoDetails = stoDetails.items.map(stoItem => {
+//                   let matchedItem = articleInTracking.find(trackingItem => trackingItem.code === stoItem.material && trackingItem.dnItem === "0" + stoItem.stoItem)
+//                   console.log({matchedItem});
+//                   let matchedBin = articlesInInventory.find(inventory => inventory.material === stoItem.material)
+//                   if (matchedItem) {
+//                         return {
+//                               ...stoItem,
+//                               remainingQuantity: stoItem.quantity - matchedItem.inboundPickedQuantity,
+//                               bins: articlesInInventory.length ? matchedBin.bins : []
+//                         }
+//                   }
+//                   else {
+//                         return {
+//                               ...stoItem,
+//                               remainingQuantity: stoItem.quantity,
+//                               bins: articlesInInventory.length ? matchedBin.bins : []
+//                         }
+//                   }
+//             }).filter(item => item.remainingQuantity !==0 )
+
+//             const responseObject = {
+//                   status: true,
+//                   message: `STO Details updated with Article Tracking and Inventory`,
+//                   totalItems: finalStoDetails.length,
+//                   items: finalStoDetails,
+//             };
+
+//             if (finalStoDetails.length) {
+//                   return res.status(200).json(responseObject);
+//             }
+      
+//             else {
+//                   return res.status(401).json({
+//                         status: false,
+//                         message: "Nothing found",
+//                         items: finalStoDetails,
+//                   });
+//             }
+//       }
+//       catch (err) {
+//             res.status(500).json({
+//                   status: false,
+//                   message: `${err.message === 'fetch failed' ? 'MIS Logged Off the PC where BAPI is Hosted' : err}`
+//             })
+//       }
+// }
+
 
 const pickingSTO = async (req, res) => {
       try {
             const { sto, site } = req.body
+            console.log({ sto, site });
             let stoDetails = await getStoDetails(sto)
             const articles = stoDetails.items.map(item => item.material)
             const articlesInInventory = await groupInventoryArticles(articles, site)
-            const articleInTracking = await ArticleTrackingModel.find({ sto })
+            const articleInTracking = await ArticleTrackingModel2.find({ sto })
+            // console.log({articleInTracking});
+            // console.log({stoDetails});
             const finalStoDetails = stoDetails.items.map(stoItem => {
                   let matchedItem = articleInTracking.find(trackingItem => trackingItem.code === stoItem.material && trackingItem.dnItem === "0" + stoItem.stoItem)
-                  console.log({matchedItem});
+                  // console.log({matchedItem});
                   let matchedBin = articlesInInventory.find(inventory => inventory.material === stoItem.material)
                   if (matchedItem) {
                         return {
                               ...stoItem,
-                              remainingQuantity: stoItem.quantity - matchedItem.inboundPickedQuantity,
+                              remainingQuantity: stoItem.quantity - matchedItem.picking.inboundPickedQuantity,
                               bins: articlesInInventory.length ? matchedBin.bins : []
                         }
                   }

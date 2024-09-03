@@ -1,4 +1,5 @@
 const STOTrackingModel = require('../models/STOTrackingModel');
+const STOTrackingModel2 = require('../models/new_models/STOTrackingV2Model');
 
 const postSTOTracking = async (req, res) => {
       try {
@@ -33,132 +34,132 @@ const postSTOTracking = async (req, res) => {
       }
 }
 
-const updateSTOTracking = async (req, res) => {
-      try {
-            const {
-                  sto,
-                  picker,
-                  pickerId,
-                  packer,
-                  packerId,
-                  pickingStartingTime,
-                  pickingEndingTime,
-                  packingStartingTime,
-                  packingEndingTime,
-                  pickedSku,
-                  status
-            } = req.body
+// const updateSTOTracking = async (req, res) => {
+//       try {
+//             const {
+//                   sto,
+//                   picker,
+//                   pickerId,
+//                   packer,
+//                   packerId,
+//                   pickingStartingTime,
+//                   pickingEndingTime,
+//                   packingStartingTime,
+//                   packingEndingTime,
+//                   pickedSku,
+//                   status
+//             } = req.body
 
-            // console.log("REQ_BODY: ", req.body);
+//             // console.log("REQ_BODY: ", req.body);
 
-            const filter = {
-                  sto
-            }
+//             const filter = {
+//                   sto
+//             }
 
-            let STOTracking = await STOTrackingModel.findOne(filter)
+//             let STOTracking = await STOTrackingModel.findOne(filter)
 
-            if (STOTracking === null) {
-                  return res.status(404).json({
-                        status: false,
-                        message: `STO id incorrect`
-                  })
-            }
+//             if (STOTracking === null) {
+//                   return res.status(404).json({
+//                         status: false,
+//                         message: `STO id incorrect`
+//                   })
+//             }
 
-            // const {
-            //       picker: hasPicker,
-            //       packer: hasPacker,
-            //       pickingStartingTime: hasPickingStartingTime,
-            //       pickingEndingTime: hasPickingEndingTime,
-            //       packingStartingTime: hasPackingStartingTime,
-            //       packingEndingTime: hasPackingEndingTime
-            // } = STOTracking
+//             // const {
+//             //       picker: hasPicker,
+//             //       packer: hasPacker,
+//             //       pickingStartingTime: hasPickingStartingTime,
+//             //       pickingEndingTime: hasPickingEndingTime,
+//             //       packingStartingTime: hasPackingStartingTime,
+//             //       packingEndingTime: hasPackingEndingTime
+//             // } = STOTracking
 
-            // console.log("FROM DB: ", hasPicker,
-            //       hasPacker,
-            //       hasPickingStartingTime,
-            //       hasPickingEndingTime,
-            //       hasPackingStartingTime,
-            //       hasPackingEndingTime);
+//             // console.log("FROM DB: ", hasPicker,
+//             //       hasPacker,
+//             //       hasPickingStartingTime,
+//             //       hasPickingEndingTime,
+//             //       hasPackingStartingTime,
+//             //       hasPackingEndingTime);
 
-            // const hasBothPickerAndPickingStartingTime = hasPicker && hasPickingStartingTime
-            // const doesNotHavePicker = !hasPicker
-            // const hasBothPackerAndPackerStartingTime = hasPacker && hasPackingStartingTime
-            // const doesNotHavePacker = !hasPacker
-            // const hasAllPickerInfo = hasPicker && hasPickingStartingTime && hasPickingEndingTime
-            // const hasAllPackerInfo = hasPacker && hasPackingStartingTime && hasPackingEndingTime
+//             // const hasBothPickerAndPickingStartingTime = hasPicker && hasPickingStartingTime
+//             // const doesNotHavePicker = !hasPicker
+//             // const hasBothPackerAndPackerStartingTime = hasPacker && hasPackingStartingTime
+//             // const doesNotHavePacker = !hasPacker
+//             // const hasAllPickerInfo = hasPicker && hasPickingStartingTime && hasPickingEndingTime
+//             // const hasAllPackerInfo = hasPacker && hasPackingStartingTime && hasPackingEndingTime
 
-            // console.log({
-            //       hasBothPickerAndPickingStartingTime, doesNotHavePicker, hasBothPackerAndPackerStartingTime, doesNotHavePacker, hasAllPickerInfo, hasAllPackerInfo
-            // });
+//             // console.log({
+//             //       hasBothPickerAndPickingStartingTime, doesNotHavePicker, hasBothPackerAndPackerStartingTime, doesNotHavePacker, hasAllPickerInfo, hasAllPackerInfo
+//             // });
 
-            // if (hasPicker && hasPickingStartingTime) {
-            //       console.log("Inbound Picking ", hasPicker, hasPickingStartingTime, pickingStartingTime);
-            //       STOTracking.status = "inbound picking"
-            //       STOTracking.pickingStartingTime = pickingStartingTime || new Date()
-            // }
-            // else if (!hasPicker) {
-            //       if (!picker && !pickerId) {
-            //             throw new Error('Picker & Picker Id is required')
-            //       }
-            //       STOTracking.picker = picker
-            //       STOTracking.pickerId = pickerId
-            //       STOTracking.status = "task assigned"
-            // }
-            // else if (hasPacker && hasPackingStartingTime) {
-            //       STOTracking.status = "inbound packing"
-            //       STOTracking.packingStartingTime = packingStartingTime || new Date()
-            // }
-            // else if (!hasPacker) {
-            //       if (!packer && !packerId) {
-            //             throw new Error('Packer & Packer Id is required')
-            //       }
-            //       STOTracking.packer = packer
-            //       STOTracking.packerId = packerId
-            //       STOTracking.status = "task assigned"
-            //       console.log(102, STOTracking);
-            // }
-            // else if (hasPicker && hasPickingStartingTime && hasPickingEndingTime) {
-            //       STOTracking.pickingEndingTime = pickingEndingTime || new Date()
-            //       STOTracking.status = "inbound picked"
-            //       console.log(107, STOTracking);
-            // }
-            // else if (hasPacker && hasPackingStartingTime && hasPackingEndingTime) {
-            //       STOTracking.packingEndingTime = packingEndingTime || new Date()
-            //       STOTracking.status = "inbound packed"
-            //       console.log(112, STOTracking);
-            // }
+//             // if (hasPicker && hasPickingStartingTime) {
+//             //       console.log("Inbound Picking ", hasPicker, hasPickingStartingTime, pickingStartingTime);
+//             //       STOTracking.status = "inbound picking"
+//             //       STOTracking.pickingStartingTime = pickingStartingTime || new Date()
+//             // }
+//             // else if (!hasPicker) {
+//             //       if (!picker && !pickerId) {
+//             //             throw new Error('Picker & Picker Id is required')
+//             //       }
+//             //       STOTracking.picker = picker
+//             //       STOTracking.pickerId = pickerId
+//             //       STOTracking.status = "task assigned"
+//             // }
+//             // else if (hasPacker && hasPackingStartingTime) {
+//             //       STOTracking.status = "inbound packing"
+//             //       STOTracking.packingStartingTime = packingStartingTime || new Date()
+//             // }
+//             // else if (!hasPacker) {
+//             //       if (!packer && !packerId) {
+//             //             throw new Error('Packer & Packer Id is required')
+//             //       }
+//             //       STOTracking.packer = packer
+//             //       STOTracking.packerId = packerId
+//             //       STOTracking.status = "task assigned"
+//             //       console.log(102, STOTracking);
+//             // }
+//             // else if (hasPicker && hasPickingStartingTime && hasPickingEndingTime) {
+//             //       STOTracking.pickingEndingTime = pickingEndingTime || new Date()
+//             //       STOTracking.status = "inbound picked"
+//             //       console.log(107, STOTracking);
+//             // }
+//             // else if (hasPacker && hasPackingStartingTime && hasPackingEndingTime) {
+//             //       STOTracking.packingEndingTime = packingEndingTime || new Date()
+//             //       STOTracking.status = "inbound packed"
+//             //       console.log(112, STOTracking);
+//             // }
 
-            else {
-                  STOTracking.picker = picker ? picker : STOTracking.picker || null
-                  STOTracking.pickerId = pickerId ? pickerId : STOTracking.pickerId || null
-                  STOTracking.packer = packer ? packer : STOTracking.packer || null
-                  STOTracking.packerId = packerId ? packerId : STOTracking.packerId || null
-                  STOTracking.pickingStartingTime = pickingStartingTime ? pickingStartingTime : STOTracking.pickingStartingTime || null
-                  STOTracking.pickingEndingTime = pickingEndingTime ? pickingEndingTime : STOTracking.pickingEndingTime || null
-                  STOTracking.packingStartingTime = packingStartingTime ? packingStartingTime : STOTracking.packingStartingTime || null
-                  STOTracking.packingEndingTime = packingEndingTime ? packingEndingTime : STOTracking.packingEndingTime || null
-                  STOTracking.pickedSku = pickedSku ? pickedSku : STOTracking.pickedSku || null
-                  STOTracking.status = status ? status : STOTracking.status || null
-                  STOTracking.updatedAt = new Date()
-            }
+//             else {
+//                   STOTracking.picker = picker ? picker : STOTracking.picker || null
+//                   STOTracking.pickerId = pickerId ? pickerId : STOTracking.pickerId || null
+//                   STOTracking.packer = packer ? packer : STOTracking.packer || null
+//                   STOTracking.packerId = packerId ? packerId : STOTracking.packerId || null
+//                   STOTracking.pickingStartingTime = pickingStartingTime ? pickingStartingTime : STOTracking.pickingStartingTime || null
+//                   STOTracking.pickingEndingTime = pickingEndingTime ? pickingEndingTime : STOTracking.pickingEndingTime || null
+//                   STOTracking.packingStartingTime = packingStartingTime ? packingStartingTime : STOTracking.packingStartingTime || null
+//                   STOTracking.packingEndingTime = packingEndingTime ? packingEndingTime : STOTracking.packingEndingTime || null
+//                   STOTracking.pickedSku = pickedSku ? pickedSku : STOTracking.pickedSku || null
+//                   STOTracking.status = status ? status : STOTracking.status || null
+//                   STOTracking.updatedAt = new Date()
+//             }
 
-            await STOTracking.save()
+//             await STOTracking.save()
 
-            return res.status(201).send(
-                  {
-                        status: true,
-                        message: "Updated STO Tracking",
-                        data: STOTracking
-                  })
-      }
-      catch (err) {
-            console.log("Error: " + err);
-            res.status(500).json({
-                  status: false,
-                  message: `${err}`
-            })
-      }
-}
+//             return res.status(201).send(
+//                   {
+//                         status: true,
+//                         message: "Updated STO Tracking",
+//                         data: STOTracking
+//                   })
+//       }
+//       catch (err) {
+//             console.log("Error: " + err);
+//             res.status(500).json({
+//                   status: false,
+//                   message: `${err}`
+//             })
+//       }
+// }
 
 const getSTOTracking = async (req, res) => {
       try {
@@ -326,6 +327,77 @@ const search = async (req, res, status) => {
       }
 }
 
+// const getAllSTOTracking = async (req,res) => {
+//       try {
+//             const { filter } = req.body
+
+//             // console.log({filter});
+            
+//             const pageSize = +req.body.query.pageSize || 10;
+//             const currentPage = +req.body.query.currentPage || 1;
+//             const sortBy = req.body.query.sortBy || '_id'; // _id or description or code or po or etc.
+//             const sortOrder = req.body.query.sortOrder || 'desc'; // asc or desc
+
+//             // const totalItems = await STOTrackingModel.find(filter).countDocuments();
+//             // const notPickedItems = await STOTrackingModel.find({...filter, $expr: { $ne: ["$pickedSku","$sku"]}})
+//             //       .skip((pageSize * (currentPage - 1)))
+//             //       .limit(pageSize)
+//             //       .sort({ [sortBy]: sortOrder })
+//             //       .exec()
+            
+//             const notPickedItems = await STOTrackingModel.find({...filter, $expr: { $ne: ["$pickedSku","$sku"]}})
+//                   .skip((pageSize * (currentPage - 1)))
+//                   .limit(pageSize)
+//                   .sort({ [sortBy]: sortOrder })
+//                   .exec()
+
+//             const pickedItems = await STOTrackingModel.find({...filter, pickedSku: {$gt: 0}, $expr: { $ne: ["$packedSku","$sku"]}})
+//             .skip((pageSize * (currentPage - 1)))
+//             .limit(pageSize)
+//             .sort({ [sortBy]: sortOrder })
+//             .exec()
+
+//             const items = await STOTrackingModel.find(filter)
+//             .skip((pageSize * (currentPage - 1)))
+//             .limit(pageSize)
+//             .sort({ [sortBy]: sortOrder })
+//             .exec()
+
+//             const totalItems = notPickedItems.length + pickedItems.length
+
+//             const responseObject = {
+//                   status: true,
+//                   totalPages: Math.ceil(totalItems / pageSize),
+//                   items,
+//                   totalItems,
+//                   pickedItems,
+//                   notPickedItems            };
+
+//             if (pickedItems.length || notPickedItems.length) {
+//                   return res.status(200).json(responseObject);
+//             }
+
+//             else {
+//                   return res.status(404).json({
+//                         status: false,
+//                         message: "Nothing found",
+//                         items
+//                   });
+//             }
+//       }
+//       catch (err) {
+//             res.status(500).json({
+//                   status: false,
+//                   message: `${err}`
+//             });
+//       }
+// }
+
+
+
+
+
+// new
 const getAllSTOTracking = async (req,res) => {
       try {
             const { filter } = req.body
@@ -338,25 +410,64 @@ const getAllSTOTracking = async (req,res) => {
             const sortOrder = req.body.query.sortOrder || 'desc'; // asc or desc
 
             // const totalItems = await STOTrackingModel.find(filter).countDocuments();
-            const notPickedItems = await STOTrackingModel.find({...filter, $expr: { $ne: ["$pickedSku","$sku"]}})
+            // const notPickedItems = await STOTrackingModel.find({...filter, $expr: { $ne: ["$pickedSku","$sku"]}})
+            //       .skip((pageSize * (currentPage - 1)))
+            //       .limit(pageSize)
+            //       .sort({ [sortBy]: sortOrder })
+            //       .exec()
+            
+            const notPickedItems = await STOTrackingModel2.find({...filter, $expr: { $ne: ["$picking.pickedSku","$sku"]}}).populate([
+                  {
+                    path: "articleTrackings",
+                  },
+                ])
                   .skip((pageSize * (currentPage - 1)))
                   .limit(pageSize)
                   .sort({ [sortBy]: sortOrder })
                   .exec()
 
-            const pickedItems = await STOTrackingModel.find({...filter, pickedSku: {$gt: 0}, $expr: { $ne: ["$packedSku","$sku"]}})
+            let pickedItems = await STOTrackingModel2.find({...filter, "picking.pickedSku": {$gt: 0}}).populate([
+                  {
+                    path: "articleTrackings",
+                  },
+                ])
             .skip((pageSize * (currentPage - 1)))
             .limit(pageSize)
             .sort({ [sortBy]: sortOrder })
-            .exec()
+            .lean()
 
-            const items = await STOTrackingModel.find(filter)
+            const items = await STOTrackingModel2.find(filter)
+            .populate([
+                  {
+                    path: "articleTrackings",
+                  },
+                ])
             .skip((pageSize * (currentPage - 1)))
             .limit(pageSize)
             .sort({ [sortBy]: sortOrder })
             .exec()
+            
+            pickedItems.map(item => {
+                  
+
+                  // item.newField = "aaaaaa"
+                  item.articleTrackings.map(innterItem => 
+                  {
+                        if(innterItem.picking.inboundPickedQuantity !== innterItem.packing.inboundPackedQuantity){
+                              item.readyForPacking = true
+                        }else{
+                              item.readyForPacking = false
+                        }
+                  }
+                        
+                  )
+            })
+
+            // console.log({pickedItems});
+            // console.log(filter,items);
 
             const totalItems = notPickedItems.length + pickedItems.length
+            
 
             const responseObject = {
                   status: true,
@@ -364,9 +475,10 @@ const getAllSTOTracking = async (req,res) => {
                   items,
                   totalItems,
                   pickedItems,
-                  notPickedItems            };
+                  notPickedItems            
+            };
 
-            if (pickedItems.length || notPickedItems.length) {
+            if (pickedItems.length || notPickedItems.length || items.length) {
                   return res.status(200).json(responseObject);
             }
 
@@ -379,6 +491,7 @@ const getAllSTOTracking = async (req,res) => {
             }
       }
       catch (err) {
+            console.log(err);
             res.status(500).json({
                   status: false,
                   message: `${err}`
@@ -386,6 +499,77 @@ const getAllSTOTracking = async (req,res) => {
       }
 }
 
+const updateSTOTracking = async (req, res) => {
+      try {
+            const {
+                  sto,
+                  // picker,
+                  // pickerId,
+                  // packer,
+                  // packerId,
+                  // pickingStartingTime,
+                  // pickingEndingTime,
+                  // packingStartingTime,
+                  // packingEndingTime,
+                  // pickedSku,
+                  // status
+            } = req.body
+
+            // console.log({filter:req.body});
+            // console.log("REQ_BODY: ", req.body);
+
+            const filter = {
+                  sto
+            }
+
+            let STOTracking = await STOTrackingModel2.findOneAndUpdate(filter,req.body)
+
+            // console.log({STOTracking});
+
+            if (STOTracking === null) {
+                  return res.status(404).json({
+                        status: false,
+                        message: `STO id incorrect`
+                  })
+            }
+
+            // STOTracking = {
+            //       ...STOTracking,
+            //       ...req.body
+            // }
+
+
+            // console.log({STOTracking});
+            // else {
+            //       STOTracking.picker = picker ? picker : STOTracking.picker || null
+            //       STOTracking.pickerId = pickerId ? pickerId : STOTracking.pickerId || null
+            //       STOTracking.packer = packer ? packer : STOTracking.packer || null
+            //       STOTracking.packerId = packerId ? packerId : STOTracking.packerId || null
+            //       STOTracking.pickingStartingTime = pickingStartingTime ? pickingStartingTime : STOTracking.pickingStartingTime || null
+            //       STOTracking.pickingEndingTime = pickingEndingTime ? pickingEndingTime : STOTracking.pickingEndingTime || null
+            //       STOTracking.packingStartingTime = packingStartingTime ? packingStartingTime : STOTracking.packingStartingTime || null
+            //       STOTracking.packingEndingTime = packingEndingTime ? packingEndingTime : STOTracking.packingEndingTime || null
+            //       STOTracking.pickedSku = pickedSku ? pickedSku : STOTracking.pickedSku || null
+            //       STOTracking.status = status ? status : STOTracking.status || null
+            // }
+
+            // await STOTracking.save()
+
+            return res.status(201).send(
+                  {
+                        status: true,
+                        message: "Updated STO Tracking",
+                        data: STOTracking
+                  })
+      }
+      catch (err) {
+            console.log("Error: " + err);
+            res.status(500).json({
+                  status: false,
+                  message: `${err}`
+            })
+      }
+}
 
 
 

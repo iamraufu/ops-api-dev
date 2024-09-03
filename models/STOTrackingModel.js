@@ -19,15 +19,6 @@ const stoTrackingSchema = new mongoose.Schema({
             required: true,
             immutable: true
       },
-      // createdAt: {
-      //       type: Date,
-      //       default: new Date(),
-      //       immutable: true
-      // },
-      // updatedAt: {
-      //       type: Date,
-      //       default: null
-      // },
       deliveryDate: {
             type: Date,
             default: null

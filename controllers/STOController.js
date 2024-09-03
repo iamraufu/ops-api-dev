@@ -1,4 +1,5 @@
 const STOTrackingModel = require('../models/STOTrackingModel')
+const STOTrackingModel2 = require('../models/new_models/STOTrackingV2Model')
 
 const stoList = async (req, res) => {
       try {
@@ -81,9 +82,89 @@ const stoList = async (req, res) => {
       }
 }
 
+// const multipleStoList = async (req, res) => {
+//       try {
+//             const { from, to, receivingPlant, supplyingPlant } = req.query
+
+//             console.log({ from, to, receivingPlant, supplyingPlant });
+//             const sites = receivingPlant.split(',')
+
+//             const requests = sites.map(site => {
+
+//                   const requestOptions = {
+//                         method: 'POST',
+//                         body: JSON.stringify(
+//                               {
+//                                     sign: "I",
+//                                     site,
+//                                     from,
+//                                     to
+//                               }
+//                         )
+//                   }
+
+//                   return fetch(`${process.env.SAP_QS}get_po.php`, requestOptions)
+//             })
+
+//             const responses = await Promise.all(requests)
+//             const results = responses.map(response => response.json())
+//             const data = await Promise.all(results)
+
+//             const count = data.reduce((accumulator, currentValue) => accumulator + currentValue.PO_FOUND, 0);
+//             const sto = data.map(item => item.PO_DOCUMENT.map(sto => sto.EBELN_LOW.trim())).flat();
+
+//             const items = data.map(item => item.POLINES.map(innerItem =>
+//             ({
+//                   sto: innerItem.EBELN.trim(),
+//                   createdOnSAP: innerItem.AEDAT.trim(),
+//                   supplyingPlant,
+//                   receivingPlant: item.IN_SITE[0].WERKS_LOW.trim(),
+//                   sku: item.POLINES.filter(s => s.EBELN === innerItem.EBELN).length
+//             })
+//             )).flat()
+
+//             console.log({items});
+
+//             let list = []
+
+//             items.filter(item => sto.map(async sto => {
+//                   if (sto === item.sto && !doesObjectExistWithId(list, item.sto)) {
+//                         list.push(item)
+//                         const isAlreadySTOInTracking = await STOTrackingModel.findOne().where('sto').equals(item.sto).exec();
+
+//                         if (!isAlreadySTOInTracking) {
+//                               await STOTrackingModel.create(item)
+//                         }
+//                   }
+//             }))
+
+//             function doesObjectExistWithId(array, sto) {
+//                   return array.some(obj => obj.sto === sto);
+//             }
+
+//             await res.status(200).json({
+//                   status: true,
+//                   message: "Successfully tracked STO and retrieved Lists",
+//                   data: {
+//                         count,
+//                         sto: list
+//                   }
+//             })
+
+//       }
+//       catch (err) {
+//             res.status(500).json({
+//                   status: false,
+//                   message: `${err.message === 'fetch failed' ? 'MIS Logged Off the PC where BAPI is Hosted': err}`
+//             })
+//       }
+// }
+
 const multipleStoList = async (req, res) => {
       try {
             const { from, to, receivingPlant, supplyingPlant } = req.query
+
+            console.log({ from, to, receivingPlant, supplyingPlant });
             const sites = receivingPlant.split(',')
 
             const requests = sites.map(site => {
@@ -120,15 +201,17 @@ const multipleStoList = async (req, res) => {
             })
             )).flat()
 
+            // console.log({items});
+
             let list = []
 
             items.filter(item => sto.map(async sto => {
                   if (sto === item.sto && !doesObjectExistWithId(list, item.sto)) {
                         list.push(item)
-                        const isAlreadySTOInTracking = await STOTrackingModel.findOne().where('sto').equals(item.sto).exec();
+                        const isAlreadySTOInTracking = await STOTrackingModel2.findOne().where('sto').equals(item.sto).exec();
 
                         if (!isAlreadySTOInTracking) {
-                              await STOTrackingModel.create(item)
+                              await STOTrackingModel2.create(item)
                         }
                   }
             }))
