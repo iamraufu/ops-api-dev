@@ -61,7 +61,10 @@ const pickingSTO = async (req, res) => {
       try {
             const { sto, site } = req.body
             console.log({ sto, site });
-            let stoDetails = await getStoDetails(sto)
+            let stoDetails = await getStoDetails(sto,res)
+            if(!stoDetails){
+                  return;
+            }
             const articles = stoDetails.items.map(item => item.material)
             const articlesInInventory = await groupInventoryArticles(articles, site)
             const articleInTracking = await ArticleTrackingModel2.find({ sto })
@@ -107,6 +110,7 @@ const pickingSTO = async (req, res) => {
             }
       }
       catch (err) {
+            console.log(err);
             res.status(500).json({
                   status: false,
                   message: `${err.message === 'fetch failed' ? 'MIS Logged Off the PC where BAPI is Hosted' : err}`
@@ -114,7 +118,7 @@ const pickingSTO = async (req, res) => {
       }
 }
 
-const getStoDetails = async (sto) => {
+const getStoDetails = async (sto,res) => {
       const requestOptions = {
             method: 'POST',
             body: JSON.stringify({ sto })
@@ -128,6 +132,7 @@ const getStoDetails = async (sto) => {
                   status: false,
                   message: `${data}`
             })
+            
       }
       else if (data?.RETURN[0]?.TYPE === 'E') {
             res.status(404).json({

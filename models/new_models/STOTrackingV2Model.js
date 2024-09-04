@@ -86,6 +86,10 @@ const stoTrackingSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    reupdatedDate: {
+      type: Date,
+      default: null,
+    },
     articleTrackings: [
       {
         type: mongoose.Schema.Types.ObjectId,

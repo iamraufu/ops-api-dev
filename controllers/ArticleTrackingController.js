@@ -353,7 +353,7 @@ const pickingArticles = async (req, res) => {
 
       if (allArticlesPicked) {
         stoTracking.status = "inbound picked";
-        stoTracking.picking.endedAt = now;
+        stoTracking.picking.endedAt = new Date();
       }
     }
 

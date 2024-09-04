@@ -1,5 +1,6 @@
 const STOTrackingModel = require('../models/STOTrackingModel');
 const STOTrackingModel2 = require('../models/new_models/STOTrackingV2Model');
+const ChildPackingModel = require("../models/ChildPackingModel");
 
 const createDN = async (req, res) => {
       try {
@@ -285,6 +286,11 @@ const dnUpdate = async (req, res) => {
             const SAPSuccess = await data.RETURN.filter(data => data.TYPE === "S")
             const SAPDNUpdatedFail = await data.RETURN.filter(data => data.NUMBER === "347")
             const SAPDNUpdatedSuccessful = await data.RETURN.filter(data => data.NUMBER === "311")
+
+
+            // console.log(SAPError,Sa);
+
+
             
             if(SAPError.length > 0) {
                   res.status(400).json({
@@ -307,6 +313,21 @@ const dnUpdate = async (req, res) => {
             }
 
             else if(SAPDNUpdatedSuccessful.length > 0) {
+
+
+                  let STOTracking = await STOTrackingModel2.findOne({ dn: req.body.dn })
+                  let ChildPacking = await ChildPackingModel.findOne({ barcode: req.body.barcode })
+
+                
+
+                  STOTracking.status = "dn reupdated",
+                  STOTracking.isReupdated = true,
+                  STOTracking.reupdatedDate = new Date()
+                  ChildPacking.status = "dn reupdated"
+
+                  await ChildPacking.save()
+                  await STOTracking.save()
+
                   res.status(201).json({
                         status: true,
                         message: `DN Edited`,
@@ -333,6 +354,41 @@ const dnUpdate = async (req, res) => {
             })
       }
 }
+// const dnUpdate = async (req, res) => {
+
+//       console.log(req.body);
+//       try {
+//             let STOTracking = await STOTrackingModel2.findOne({ dn: req.body.dn })
+//             let ChildPacking = await ChildPackingModel.findOne({ barcode: req.body.barcode })
+
+          
+
+//             STOTracking.status = "dn reupdated",
+//             STOTracking.isReupdated = true,
+//             STOTracking.reupdatedDate = new Date()
+//             ChildPacking.status = "dn reupdated"
+
+//             await ChildPacking.save()
+//             await STOTracking.save()
+            
+//             res.status(201).json({
+//                   status: true,
+//                   message: `DN Edited`,
+//                   // data: SAPDNUpdatedSuccessful.map(item => ({
+//                   //       message: item.MESSAGE.trim()
+//                   // }))
+//             })
+            
+           
+//       }
+//       catch (err) {
+//             console.log(err);
+//             res.status(500).json({
+//                   status: false,
+//                   message: `${err.message === 'fetch failed' ? 'MIS Logged Off the PC where BAPI is Hosted' : err}`
+//             })
+//       }
+// }
 
 module.exports = {
       createDN,
