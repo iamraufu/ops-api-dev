@@ -276,11 +276,15 @@ const pickingArticles = async (req, res) => {
     const { code, name, quantity, inboundPickedQuantity, sto, dnItem, unit } =
       req.body;
 
+      console.log({ code, name, quantity, inboundPickedQuantity, sto, dnItem, unit });
+
     // 1. Check if the STO exists in STOTracking
     const stoTracking = await STOTrackingModel2.findOne({ sto });
     if (!stoTracking) {
       return res.status(404).json({ message: "STO not found" });
     }
+
+    console.log({stoTracking});
 
     // 2. Check if an ArticleV2Tracking already exists with the provided code
     let articleTracking = await ArticleTrackingModel2.findOne({ code });
