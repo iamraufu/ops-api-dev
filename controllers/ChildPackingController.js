@@ -80,11 +80,11 @@ const generateChildPackingList = async (req, res) => {
       .sort({ _id: -1 })
       .limit(1);
 
-    console.log({ foundChildPackingList });
+    // console.log({ foundChildPackingList });
     let updatedCount =
       foundChildPackingList.length > 0 ? foundChildPackingList[0].count : 1;
 
-    console.log({ updatedCount });
+    // console.log({ updatedCount });
 
     if (foundChildPackingList.length > 0) {
       updatedCount = foundChildPackingList[0].count + 1;
