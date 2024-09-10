@@ -287,7 +287,7 @@ const pickingArticles = async (req, res) => {
     console.log({stoTracking});
 
     // 2. Check if an ArticleV2Tracking already exists with the provided code
-    let articleTracking = await ArticleTrackingModel2.findOne({ code });
+    let articleTracking = await ArticleTrackingModel2.findOne({ sto, code });
 
     if (articleTracking) {
       // Update logic if the article already exists
@@ -304,7 +304,6 @@ const pickingArticles = async (req, res) => {
       }
     } else {
       // 3. If the article does not exist, create a new one
-
       articleTracking = new ArticleTrackingModel2({
         code,
         name,
