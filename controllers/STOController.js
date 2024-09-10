@@ -39,10 +39,10 @@ const stoList = async (req, res) => {
 
                         if (sto === item.sto && !doesObjectExistWithId(list, item.sto)) {
                               list.push(item)
-                              const isAlreadySTOInTracking = await STOTrackingModel.findOne().where('sto').equals(item.sto).exec();
+                              const isAlreadySTOInTracking = await STOTrackingModel2.findOne().where('sto').equals(item.sto).exec();
 
                               if (!isAlreadySTOInTracking) {
-                                    await STOTrackingModel.create(item)
+                                    await STOTrackingModel2.create(item)
                               }
                         }
                   }))
