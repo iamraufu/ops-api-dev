@@ -279,6 +279,7 @@ const dnUpdate = async (req, res) => {
                         }
                   )
             }
+            
 
             const response = await fetch(`${process.env.SAP_QS}create_dn_update.php`, requestOptions)
             const data = await response.json()
@@ -315,17 +316,18 @@ const dnUpdate = async (req, res) => {
             else if(SAPDNUpdatedSuccessful.length > 0) {
 
 
+                  // let ChildPacking = await ChildPackingModel.findOne({ barcode: req.body.barcode })
+                  let ChildPacking = await ChildPackingModel.updateMany({ dn: req.body.dn },{ $set: { status: 'dn reupdated' } } )
                   let STOTracking = await STOTrackingModel2.findOne({ dn: req.body.dn })
-                  let ChildPacking = await ChildPackingModel.findOne({ barcode: req.body.barcode })
 
                 
 
                   STOTracking.status = "dn reupdated",
                   STOTracking.isReupdated = true,
                   STOTracking.reupdatedDate = new Date()
-                  ChildPacking.status = "dn reupdated"
+                  // ChildPacking.status = "dn reupdated"
 
-                  await ChildPacking.save()
+                  // await ChildPacking.save()
                   await STOTracking.save()
 
                   res.status(201).json({

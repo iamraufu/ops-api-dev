@@ -284,10 +284,17 @@ const pickingArticles = async (req, res) => {
       return res.status(404).json({ message: "STO not found" });
     }
 
-    console.log({stoTracking});
+    // console.log({stoTracking});
+
+    let newDnItem = "0" + dnItem
+
+
+    // console.log({ sto, code , newDnItem});
 
     // 2. Check if an ArticleV2Tracking already exists with the provided code
-    let articleTracking = await ArticleTrackingModel2.findOne({ sto, code, dnItem });
+    let articleTracking = await ArticleTrackingModel2.findOne({ sto, code , dnItem:newDnItem});
+
+    // console.log({articleTracking});
 
     if (articleTracking) {
       // Update logic if the article already exists
