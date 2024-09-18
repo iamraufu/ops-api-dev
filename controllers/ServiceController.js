@@ -1,60 +1,130 @@
+const mongoose = require('mongoose');
 const InventoryModel = require('../models/InventoryModel')
-const ArticleTrackingModel = require('../models/ArticleTrackingModel');
+// const ArticleTrackingModel = require('../models/ArticleTrackingModel');
 const ArticleTrackingModel2 = require('../models/new_models/ArticleTrackingV2Model');
+const TempDataModel = require('../models/TempDataModel');
+const ProductShelvingModel = require('../models/ProductShelvingModel')
 
-// const pickingSTO = async (req, res) => {
-//       try {
-//             const { sto, site } = req.body
-//             let stoDetails = await getStoDetails(sto)
-//             const articles = stoDetails.items.map(item => item.material)
-//             const articlesInInventory = await groupInventoryArticles(articles, site)
-//             const articleInTracking = await ArticleTrackingModel.find({ sto })
-//             const finalStoDetails = stoDetails.items.map(stoItem => {
-//                   let matchedItem = articleInTracking.find(trackingItem => trackingItem.code === stoItem.material && trackingItem.dnItem === "0" + stoItem.stoItem)
-//                   console.log({matchedItem});
-//                   let matchedBin = articlesInInventory.find(inventory => inventory.material === stoItem.material)
-//                   if (matchedItem) {
-//                         return {
-//                               ...stoItem,
-//                               remainingQuantity: stoItem.quantity - matchedItem.inboundPickedQuantity,
-//                               bins: articlesInInventory.length ? matchedBin.bins : []
-//                         }
-//                   }
-//                   else {
-//                         return {
-//                               ...stoItem,
-//                               remainingQuantity: stoItem.quantity,
-//                               bins: articlesInInventory.length ? matchedBin.bins : []
-//                         }
-//                   }
-//             }).filter(item => item.remainingQuantity !==0 )
 
-//             const responseObject = {
-//                   status: true,
-//                   message: `STO Details updated with Article Tracking and Inventory`,
-//                   totalItems: finalStoDetails.length,
-//                   items: finalStoDetails,
-//             };
+const submitforShelvingAndUpdateTempData = async (req, res) => {
+      // Start a session
+      const session = await mongoose.startSession();
 
-//             if (finalStoDetails.length) {
-//                   return res.status(200).json(responseObject);
-//             }
+      let filterTempData = {}
+      const {tempObj, shelvingObj} = req.body
       
-//             else {
-//                   return res.status(401).json({
-//                         status: false,
-//                         message: "Nothing found",
-//                         items: finalStoDetails,
-//                   });
-//             }
-//       }
-//       catch (err) {
-//             res.status(500).json({
-//                   status: false,
-//                   message: `${err.message === 'fetch failed' ? 'MIS Logged Off the PC where BAPI is Hosted' : err}`
-//             })
-//       }
-// }
+      const filterShelving = {
+            po:shelvingObj.po,
+            sto:shelvingObj.sto,
+            code: shelvingObj.code,
+            quantity: shelvingObj.quantity
+      }
+
+      let receivedQuantity = shelvingObj.receivedQuantity
+
+      console.log({filterShelving});
+
+      if(tempObj.type === "grn data" ){
+
+            filterTempData = {
+                        userId:tempObj.userId, 
+                        type:tempObj.type,
+                        "data.po": tempObj.po,
+                     }
+      }
+
+
+      const mongoTempData = await TempDataModel.findOne(filterTempData)
+      const alreadyReadyForShelving = await ProductShelvingModel.findOne(filterShelving)
+      const isAlreadyReadyForShelving = Boolean(alreadyReadyForShelving)
+
+      // console.log({mongoTempData});
+
+      try {
+            // Start the transaction
+             session.startTransaction();
+
+
+             if (isAlreadyReadyForShelving) {
+                  if (alreadyReadyForShelving.receivedQuantity <= alreadyReadyForShelving.quantity) {
+
+                        alreadyReadyForShelving.receivedQuantity += receivedQuantity
+
+                        if (alreadyReadyForShelving.receivedQuantity > alreadyReadyForShelving.quantity) {
+                              return res.status(409).send({
+                                    status: false,
+                                    message: `Received Quantity ${alreadyReadyForShelving.receivedQuantity} cannot exceed PO Quantity ${alreadyReadyForShelving.quantity}`
+                              })
+                        }
+                        else {
+                              await alreadyReadyForShelving.save({session})
+                        }
+                  }
+            }
+            else {
+                  const data = await ProductShelvingModel.create([shelvingObj],{session})
+            }
+
+            if(!mongoTempData){
+
+                  const formattedData = {
+                        userId:tempObj.userId, 
+                        type:tempObj.type, 
+                        data:[
+                              tempObj
+                        ]
+                  }
+                  // create
+                  const tempData = await TempDataModel.create([formattedData], {session})
+
+                  
+            }
+
+            if(mongoTempData){
+                  const materialFound = mongoTempData.data.find( item => item.material === req.body.tempObj.material )
+
+                  const index = mongoTempData.data.findIndex(item => item.material === req.body.tempObj.material );
+
+                  // console.log({index});
+
+                  let key = `data.${index}.quantity`
+
+                  console.log({materialFound,index,key});
+
+                  if(materialFound){
+                        const tempData = await TempDataModel.findOneAndUpdate(
+                              filterTempData,
+                              {
+                                  $inc: { [key]: req.body.tempObj.quantity }
+                              },
+                              {session}
+                          );
+
+                        console.log({tempData});
+      
+                  }else{
+                        mongoTempData.data.push(tempObj)
+                        await mongoTempData.save({session})
+                  }
+            }
+
+
+
+            
+
+
+            await session.commitTransaction();
+            res.status(201).send({status: true, message: 'Transaction successful'});
+      } catch (error) {
+            console.log(error);
+            await session.abortTransaction();
+            res.status(500).send({status: false, message: 'Transaction failed', error });
+      }finally{
+            // End the session
+            session.endSession();
+      }
+}
+      
 
 
 const pickingSTO = async (req, res) => {
@@ -247,6 +317,8 @@ const groupInventoryArticles = async (articles, site) => {
       return articlesInInventory
 }
 
+
 module.exports = {
-      pickingSTO
+      pickingSTO,
+      submitforShelvingAndUpdateTempData
 }

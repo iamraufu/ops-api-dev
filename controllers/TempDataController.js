@@ -292,15 +292,6 @@ const createOrUpdateTempData = async (req, res) => {
             })
       }
 
-      // try {
-      //       await search(req, res)
-      // }
-      // catch (err) {
-      //       res.status(500).json({
-      //             status: false,
-      //             message: `${err}`
-      //       })
-      // }
 }
 
 
