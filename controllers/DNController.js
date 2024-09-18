@@ -1,6 +1,7 @@
 const STOTrackingModel = require('../models/STOTrackingModel');
 const STOTrackingModel2 = require('../models/new_models/STOTrackingV2Model');
 const ChildPackingModel = require("../models/ChildPackingModel");
+const { json } = require('express');
 
 const createDN = async (req, res) => {
       try {
@@ -268,14 +269,54 @@ const dnDisplay = async (req, res) => {
       }
 }
 
+
+function fillMissingItems(data) {
+      const { totalSKU, dnData } = data;
+      
+      // Create an array to store the final dnData with missing items filled
+      const filledData = [];
+      
+      // Create a map to quickly check existing dnItems
+      const existingItems = new Map(dnData.map(item => [item.dnItem, item]));
+    
+      // Iterate to check for missing dnItems in multiples of 10 (e.g., 000010, 000020)
+      for (let i = 1; i <= totalSKU; i++) {
+        // Create the dnItem in the format with multiples of 10
+        const dnItem = (i * 10).toString().padStart(6, '0');
+        
+        // Check if this dnItem exists in the input dnData
+        if (existingItems.has(dnItem)) {
+          // If it exists, push the existing item to the filledData array
+          filledData.push(existingItems.get(dnItem));
+        } else {
+          // If it doesn't exist, create a new item with quantity 0 and add it to the filledData array
+          filledData.push({ dnItem, quantity: 0 });
+        }
+      }
+    
+      // Return the updated object with the filled data
+      return { ...data, dnData: filledData };
+}
+
+
 const dnUpdate = async (req, res) => {
+      console.log(req.body);
+
+      const newDnData = fillMissingItems(req.body) 
+
+
+      // res.status(201).json({
+      //                         status: true,
+      //                         data: newDnData
+      //                   })
+      
       try {
             const requestOptions = {
                   method: 'POST',
                   body: JSON.stringify(
                         {
-                              dn: req.body.dn,
-                              DNData: req.body.dnData
+                              dn: newDnData.dn,
+                              DNData: newDnData.dnData
                         }
                   )
             }

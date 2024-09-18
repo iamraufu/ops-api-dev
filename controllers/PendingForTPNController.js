@@ -9,7 +9,7 @@ const postPendingForTPN = async (req, res) => {
             return res.status(201).send(
                   {
                         status: true,
-                        message: "TPN data posted successfully!",
+                        message: "Damage reported successfully!",
                         data: tpn
                   })
       }

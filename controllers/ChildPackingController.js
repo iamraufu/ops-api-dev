@@ -217,10 +217,26 @@ const updateChildPackingList = async (req, res) => {
 const getChildPackingByPost = async (req, res) => {
   const filter = req.body;
 
-  console.log(filter);
+  // console.log(filter);
   try {
     // Find documents matching the filter criteria
-    const filteredData = await ChildPackingModel.find(filter).sort({createdAt: -1});
+    const filteredData = await ChildPackingModel.find(filter).sort({createdAt: -1}).lean();
+
+    // for (let i = 0; i < filteredData.length; i++) {
+      
+    // }
+
+    let newData = [];
+
+    for (const item of filteredData) {
+      const stoData = await STOTrackingModel2.findOne({ dn: item.dn });
+      // console.log({stoData});
+      // item.totalSKU = stoData.sku
+      newData.push({...item,totalSKU:stoData.sku});  // You can process the `stoData` here if needed
+    }
+  
+    // console.log({ newData });
+  
 
     if (filteredData.length === 0) {
       return res
@@ -228,7 +244,7 @@ const getChildPackingByPost = async (req, res) => {
         .send({ message: "No data found matching the criteria" });
     }
 
-    res.status(200).send({ status: true, data: filteredData });
+    res.status(200).send({ status: true, data: newData });
   } catch (error) {
     res.status(500).send({ message: "Error fetching data", error });
   }
