@@ -114,7 +114,7 @@ const submitforShelvingAndUpdateTempData = async (req, res) => {
 
 
             await session.commitTransaction();
-            res.status(201).send({status: true, message: 'Transaction successful'});
+            res.status(201).send({status: true, message: 'Item ready for shelving'});
       } catch (error) {
             console.log(error);
             await session.abortTransaction();
