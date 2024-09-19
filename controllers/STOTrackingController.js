@@ -448,19 +448,20 @@ const getAllSTOTracking = async (req,res) => {
             .exec()
             
             pickedItems.map(item => {
-                  
-
                   // item.newField = "aaaaaa"
+                  let isReady = false
                   item.articleTrackings.map(innterItem => 
                   {
                         if(innterItem.picking.inboundPickedQuantity !== innterItem.packing.inboundPackedQuantity){
-                              item.readyForPacking = true
+                              innterItem.readyForPacking = true
+                              isReady = true
                         }else{
-                              item.readyForPacking = false
+                              innterItem.readyForPacking = false
                         }
                   }
-                        
+                  
                   )
+                  item.readyForPacking = isReady
             })
 
             // console.log({pickedItems});

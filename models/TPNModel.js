@@ -11,7 +11,19 @@ const tpnSchema = new mongoose.Schema({
       grn: {
             type: String,
       },
-
+      receivingPlant: {
+            type: String,
+      },
+      supplyingPlant: {
+            type: String,
+      },
+      grn: {
+            type: String,
+      },
+      isDeleted: {
+            type: Boolean,
+            default: false
+      },
       createdBy: {
             type: mongoose.Types.ObjectId,
             ref: "User",

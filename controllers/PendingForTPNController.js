@@ -33,6 +33,45 @@ const getPendingForTPN = async (req, res) => {
       }
 }
 
+
+const getPendingForTPNByPost = async (req, res) => {
+      const filter = req.body.filterBy
+
+      // console.log({filter});
+      try {
+            const totalItems = await TPNModel.find(filter).countDocuments();
+            const items = await TPNModel.find(filter)
+
+            // console.log({items});
+
+            const responseObject = {
+                  status: true,
+                  totalItems,
+                  items
+            };
+      
+            if (items.length) {
+                  return res.status(200).json(responseObject);
+            } else {
+
+                  return res.status(404).json({
+                        status: false,
+                        message: "Nothing found",
+                        items
+                  });
+            }
+      
+            
+      }
+      catch (err) {
+            console.log(err);
+            res.status(500).json({
+                  status: false,
+                  message: `${err}`
+            })
+      }
+}
+
 const updatePendingForTPN = async (req, res) => {
       try {
 
@@ -127,5 +166,6 @@ const search = async (req, res, status) => {
 module.exports = {
       postPendingForTPN,
       getPendingForTPN,
-      updatePendingForTPN
+      updatePendingForTPN,
+      getPendingForTPNByPost
 }
