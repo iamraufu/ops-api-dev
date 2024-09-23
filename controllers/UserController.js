@@ -6,12 +6,6 @@ const mongoose = require("mongoose");
 
 // Register a new user
 const register = async (req, res) => {
-
-      // return res.status(404).send({
-      //       status: false,
-      //       message: `can not regiser from this app`
-      // })
-
       try {
             const { email, staffId } = req.body
 
@@ -75,13 +69,6 @@ const register = async (req, res) => {
 
 // User Login
 const login = async (req, res) => {
-
-      // return res.status(404).send({
-      //       status: false,
-      //       message: `can not login from this app`
-            
-      // })
-      
       try {
             const { userId, password } = req.body
             const user = await UserModel.findOne(
@@ -162,6 +149,20 @@ const login = async (req, res) => {
 const users = async (req, res) => {
       try {
             await search(req, res, '')
+      }
+      catch (err) {
+            res.status(500).json({
+                  status: false,
+                  message: `${err}`
+            })
+      }
+}
+
+
+// GET all users with out permission only Role
+const usersWithoutPermission = async (req, res) => {
+      try {
+            await search2(req, res, '')
       }
       catch (err) {
             res.status(500).json({
@@ -380,6 +381,65 @@ const update = async (req, res) => {
       }
 }
 
+
+const resetPassword = async (req,res) => {
+      const { id } = req.params
+
+      const { newPassword } = req.body
+
+      try {
+            if (!mongoose.Types.ObjectId.isValid(id)) {
+                  return res.status(404).json({
+                        status: false,
+                        message: `User Id incorrect`
+                  })
+            }
+
+            const user = await UserModel.findById(id)
+            const userExist = Boolean(user)
+
+            if (!userExist) {
+                  return res.status(401).json({
+                        status: false,
+                        message: `User doesn't exist`,
+                  });
+            }
+
+
+            const salt = await bcrypt.genSalt(10);
+            const passwordHash = await bcrypt.hash(newPassword, salt);
+
+            userDetails = {
+                  password: passwordHash,
+                  updatedAt: new Date()
+            }
+            
+
+    
+
+            let updatedUser = await UserModel.findByIdAndUpdate
+                  (
+                        id, userDetails,
+                        {
+                              new: true,
+                              runValidators: true
+                        }
+                  ).select(" -password")
+
+            res.status(201).json({
+                  status: true,
+                  message: "password reset successfully",
+                  user: updatedUser
+            })
+      }
+      catch (err) {
+            res.status(500).json({
+                  status: false,
+                  message: `${err}`
+            })
+      }
+}
+
 const search = async (req, res, status) => {
 
       let filter = {
@@ -442,12 +502,77 @@ const search = async (req, res, status) => {
       }
 }
 
+
+const search2 = async (req, res, status) => {
+
+      let filter = {
+            isDeleted: false,
+            status
+      };
+
+      if (status === '') {
+            filter = {
+                  isDeleted: false
+            };
+      }
+      if (req.query.filterBy && req.query.value) {
+            filter[req.query.filterBy] = req.query.value;
+      }
+
+      const pageSize = +req.query.pageSize || 10;
+      const currentPage = +req.query.currentPage || 1;
+      const sortBy = req.query.sortBy || '_id'; // _id or description or code or po or etc.
+      const sortOrder = req.query.sortOrder || 'desc'; // asc or desc
+
+      const totalItems = await UserModel.find(filter).countDocuments();
+      const items = await UserModel.find(filter)
+            .skip((pageSize * (currentPage - 1)))
+            .limit(pageSize)
+            .sort({ [sortBy]: sortOrder })
+            .select(" -password")
+            .lean()
+
+      // for (let i = 0; i < items.length; i++) {
+      //       const user = items[i];
+      //       const role = await RoleModel.findOne({
+      //             role: { $regex: new RegExp(user.role, "i") },
+      //       }).lean();
+      //       if (role) {
+      //             items[i] = {
+      //                   ...user,
+      //                   hasPermission: role.hasPermission,
+      //             };
+      //       }
+      // }
+
+      const responseObject = {
+            status: true,
+            totalPages: Math.ceil(totalItems / pageSize),
+            totalItems,
+            items
+      };
+
+      if (items.length) {
+            return res.status(200).json(responseObject);
+      }
+
+      else {
+            return res.status(401).json({
+                  status: false,
+                  message: "Nothing found",
+                  items
+            });
+      }
+}
+
 module.exports = {
       register,
       login,
       users,
       // userPreferences,
+      usersWithoutPermission,
       user,
       getAllPickerPacker,
-      update
+      update,
+      resetPassword
 }

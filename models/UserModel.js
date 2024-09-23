@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
       },
       email: {
             type: String,
-            unique: true,
+            // unique: true,
             // required: true,
             // immutable: true
       },
@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema({
       staffId: {
             type: String,
             // required: true,
-            unique: true,
+            // unique: true,
             // immutable: true
       },
       site: {
