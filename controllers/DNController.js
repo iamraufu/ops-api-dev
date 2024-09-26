@@ -300,16 +300,12 @@ function fillMissingItems(data) {
 
 
 const dnUpdate = async (req, res) => {
-      console.log(req.body);
+      // console.log(req.body);
+
+      let unexpectedReturn = [];
 
       const newDnData = fillMissingItems(req.body) 
 
-
-      // res.status(201).json({
-      //                         status: true,
-      //                         data: newDnData
-      //                   })
-      
       try {
             const requestOptions = {
                   method: 'POST',
@@ -332,7 +328,7 @@ const dnUpdate = async (req, res) => {
 
 
             // console.log(SAPError,Sa);
-
+            unexpectedReturn = data
 
             
             if(SAPError.length > 0) {
@@ -397,7 +393,7 @@ const dnUpdate = async (req, res) => {
                   res.status(400).json({
                         status: false,
                         // message: `DN Quantity not edited`,
-                        message:data.RETURN[0].MESSAGE,
+                        message:data?.RETURN[0].MESSAGE,
                         data
                   })
             }
@@ -405,8 +401,8 @@ const dnUpdate = async (req, res) => {
       catch (err) {
             res.status(500).json({
                   status: false,
-                  message: `${err.message === 'fetch failed' ? 'MIS Logged Off the PC where BAPI is Hosted' : err}`,
-                  data,
+                  message: `${err.message === 'fetch failed' ? 'MIS Logged Off the PC where BAPI is Hosted' : "unexpected return:"}`,
+                  unexpectedReturn,
             })
       }
 }
