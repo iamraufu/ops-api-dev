@@ -36,6 +36,8 @@ const register = async (req, res) => {
                               ...req.body,
                               email: email.trim().length > 0 ? email.trim() : staffId.trim(),
                               staffId: staffId.trim().length > 0 ? staffId.trim() : email.trim(),
+                              site: [req.body.site],
+                              phone: req.body.phone,
                               password: passwordHash
                         }
                   );
