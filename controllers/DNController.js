@@ -358,7 +358,7 @@ const dnUpdate = async (req, res) => {
 
                   // let ChildPacking = await ChildPackingModel.findOne({ barcode: req.body.barcode })
                   let ChildPacking = await ChildPackingModel.updateMany({ dn: req.body.dn },{ $set: { status: 'dn reupdated' } } )
-                  let STOTracking = await STOTrackingModel.findOne({ dn: req.body.dn })
+                  let STOTracking = await STOTrackingModel2.findOne({ dn: req.body.dn })
 
                 
 
