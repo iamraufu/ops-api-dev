@@ -325,6 +325,7 @@ const dnUpdate = async (req, res) => {
             const response = await fetch(`${process.env.SAP_QS}create_dn_update.php`, requestOptions)
             const data = await response.json()
             const SAPError = await data.RETURN.filter(data => data.TYPE === "E")
+            const test = await data.RETURN.filter(data => data.TYPE === "A")
             const SAPSuccess = await data.RETURN.filter(data => data.TYPE === "S")
             const SAPDNUpdatedFail = await data.RETURN.filter(data => data.NUMBER === "347")
             const SAPDNUpdatedSuccessful = await data.RETURN.filter(data => data.NUMBER === "311")
@@ -340,7 +341,8 @@ const dnUpdate = async (req, res) => {
                         message: 'DN Quantity not edited',
                         data: SAPError.map(item => ({
                               message: item.MESSAGE.trim()
-                        }))
+                        })),
+                        data
                   })
             }
 
@@ -350,7 +352,8 @@ const dnUpdate = async (req, res) => {
                         message: 'DN Quantity already edited',
                         data: SAPDNUpdatedFail.map(item => ({
                               message: item.MESSAGE.trim()
-                        }))
+                        })),
+                        data
                   })
             }
 
@@ -359,7 +362,7 @@ const dnUpdate = async (req, res) => {
 
                   // let ChildPacking = await ChildPackingModel.findOne({ barcode: req.body.barcode })
                   let ChildPacking = await ChildPackingModel.updateMany({ dn: req.body.dn },{ $set: { status: 'dn reupdated' } } )
-                  let STOTracking = await STOTrackingModel2.findOne({ dn: req.body.dn })
+                  let STOTracking = await STOTrackingModel.findOne({ dn: req.body.dn })
 
                 
 
@@ -376,7 +379,8 @@ const dnUpdate = async (req, res) => {
                         message: `DN Edited`,
                         data: SAPDNUpdatedSuccessful.map(item => ({
                               message: item.MESSAGE.trim()
-                        }))
+                        })),
+                        data
                   })
             }
             
@@ -386,14 +390,23 @@ const dnUpdate = async (req, res) => {
                         message: `DN Quantity not edited`,
                         data: SAPSuccess.map(item => ({
                               message: item.MESSAGE.trim()
-                        }))
+                        })),
+                        data,
+                  })
+            }else{
+                  res.status(400).json({
+                        status: false,
+                        // message: `DN Quantity not edited`,
+                        message:data.RETURN[0].MESSAGE,
+                        data
                   })
             }
       }
       catch (err) {
             res.status(500).json({
                   status: false,
-                  message: `${err.message === 'fetch failed' ? 'MIS Logged Off the PC where BAPI is Hosted' : err}`
+                  message: `${err.message === 'fetch failed' ? 'MIS Logged Off the PC where BAPI is Hosted' : err}`,
+                  data,
             })
       }
 }
